@@ -18,7 +18,7 @@
 </g>
 <g font-size="12" text-anchor="middle" fill="#62718a">
 <text x="110" y="140">Check + infer shapes</text><text x="305" y="140">Types + dependencies</text>
-<text x="500" y="140">Dead code + fusion</text><text x="695" y="140">SRAM + data movement</text>
+<text x="500" y="140">Python / MLIR rewrites</text><text x="695" y="140">SRAM + data movement</text>
 <text x="890" y="140">Addresses + schedule</text><text x="1087" y="140">FP32 + timing</text>
 </g>
 <g stroke="#75829b" fill="none" marker-end="url(#a)">

@@ -10,7 +10,7 @@ from .pipeline import Run, compile_model
 
 
 def run_benchmarks(
-    directory: str | Path, hardware: Hardware | None = None
+    directory: str | Path, hardware: Hardware | None = None, **compiler_options
 ) -> list[tuple[str, Run]]:
     directory = Path(directory)
     h = hardware or Hardware()
@@ -32,7 +32,7 @@ def run_benchmarks(
     runs = []
     rows = []
     for label, path, config, enabled in specs:
-        run = compile_model(path, config, enabled)
+        run = compile_model(path, config, enabled, **compiler_options)
         run.write(directory / label)
         runs.append((label, run))
         rows.append(
@@ -75,7 +75,10 @@ def run_fusion_benchmarks(directory: str | Path) -> list[tuple[str, Run]]:
 
 
 def run_backend_benchmarks(
-    directory: str | Path, model: str | Path | None = None, hardware: Hardware | None = None
+    directory: str | Path,
+    model: str | Path | None = None,
+    hardware: Hardware | None = None,
+    **compiler_options,
 ) -> list[tuple[str, Run]]:
     directory = Path(directory)
     if model is None:
@@ -86,10 +89,36 @@ def run_backend_benchmarks(
         ("memory_aware", "memory-aware", True),
         ("memory_aware_no_reuse", "memory-aware", False),
     ]:
-        run = compile_model(model, hardware, scheduler=scheduler, reuse=reuse)
+        run = compile_model(model, hardware, scheduler=scheduler, reuse=reuse, **compiler_options)
         run.write(directory / label)
         runs.append((label, run))
         rows.append({"case": label, "scheduler": scheduler, "reuse": reuse, **run.summary()})
+    (directory / "results.json").write_text(json.dumps(rows, sort_keys=True, indent=2) + "\n")
+    (directory / "results.md").write_text(benchmark_table(runs))
+    return runs
+
+
+def run_mlir_benchmarks(
+    directory: str | Path, mlir_opt: str | Path | None = None
+) -> list[tuple[str, Run]]:
+    """Compare both compiler paths on identical MLPs and hardware settings."""
+    directory = Path(directory)
+    model = generate_model(directory / "models" / "mlp.onnx", "mlp")
+    runs, rows = [], []
+    for architecture in ("conventional", "pim"):
+        for compiler in ("python", "mlir"):
+            for enabled in (False, True):
+                label = f"{architecture}_{compiler}_" + ("optimized" if enabled else "unoptimized")
+                run = compile_model(
+                    model,
+                    Hardware(architecture=architecture),
+                    enabled,
+                    compiler=compiler,
+                    mlir_opt=mlir_opt if compiler == "mlir" else None,
+                )
+                run.write(directory / label)
+                runs.append((label, run))
+                rows.append({"case": label, "compiler": compiler, **run.summary()})
     (directory / "results.json").write_text(json.dumps(rows, sort_keys=True, indent=2) + "\n")
     (directory / "results.md").write_text(benchmark_table(runs))
     return runs

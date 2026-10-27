@@ -167,6 +167,21 @@ def binary_section(run: Run) -> str:
     if run.compiled is None:
         return ""
     image, m = run.compiled, run.metrics
+    frontend = ""
+    if run.frontend_artifacts:
+        metadata = image.manifest["compiler_frontend"]
+        frontend = (
+            "<h3>MLIR compiler path</h3><p>The native MLIR tool verified the tensor dialect, "
+            "applied the selected SSA rewrites, and exported the graph consumed by "
+            "the NPU backend. "
+            "Standard-dialect lowering is saved separately for inspection and LLVM conversion.</p>"
+            f"<p>{esc(metadata['toolchain'])}</p><ul>"
+            + "".join(
+                f"<li>{esc(name)} · {len(data):,} B</li>"
+                for name, data in run.frontend_artifacts.items()
+            )
+            + "</ul>"
+        )
     rows = "".join(
         f"<tr><td>{esc(t['id'])}</td><td>{esc('/'.join(t['roles']))}</td>"
         f"<td>0x{t['address']:x}</td><td>{t['size']:,}</td>"
@@ -178,7 +193,7 @@ def binary_section(run: Run) -> str:
         f"<td><code>{meta['sha256'][:16]}…</code></td></tr>"
         for name, meta in image.manifest["images"].items()
     )
-    return f"""<h3>Compiled program</h3>
+    return f"""{frontend}<h3>Compiled program</h3>
 <p>Schedule: {esc(image.schedule["strategy"])} · FP32 · little-endian ·
 binary format v1 · 256-byte records · entry point 0.</p>
 <p>Outputs were obtained by loading the binary files and executing addressed

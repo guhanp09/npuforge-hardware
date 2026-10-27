@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0
+
+- Add an optional LLVM/MLIR 19 tool with a registered FP32 tensor dialect and verifiers.
+- Implement native SSA fusion and dead-code rewrites, preserving observable values.
+- Bridge the transformed MLIR graph to the existing addressed binary backend.
+- Lower every supported operation to Linalg/Arith/Tensor and optionally verified LLVM IR.
+- Execute generated LLVM code in differential tests; compare both compiler paths on
+  the same conventional/PIM workloads and expose MLIR artifacts in HTML reports.
+
 ## 0.4.0
 
 - Emit versioned executable instruction and FP32 weight images with checked manifests.

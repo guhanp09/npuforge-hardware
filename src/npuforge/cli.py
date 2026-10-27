@@ -68,6 +68,10 @@ def print_run(label: str, run: Run) -> None:
     print(f"  [PASS] Hardware lowering: {len(run.program.instructions):,} instructions")
     print("  [PASS] Native C++ simulation / numerical verification against ONNX Runtime")
     if run.compiled is not None:
+        if run.frontend_artifacts:
+            print(
+                "  [PASS] Native MLIR verification / SSA rewrites / Linalg lowering / graph bridge"
+            )
         print(
             f"  [PASS] Address allocation / {run.compiled.schedule['strategy']} scheduling / "
             "binary encoding and loading"
@@ -117,6 +121,15 @@ def main(argv: list[str] | None = None) -> int:
     inspect_parser = commands.add_parser("inspect", help="validate and print imported IR")
     inspect_parser.add_argument("model", type=Path)
     inspect_parser.add_argument("--json", action="store_true")
+    for command in (compile_parser, commands.choices["demo"], commands.choices["benchmark"]):
+        command.add_argument("--compiler", choices=["python", "mlir"], default="python")
+        command.add_argument(
+            "--mlir-opt", type=Path, help="path to the optional native npuforge-opt"
+        )
+        command.add_argument(
+            "--emit-llvm", action="store_true", help="also lower MLIR to verified LLVM IR"
+        )
+        command.add_argument("--llvm-bin", type=Path, help="LLVM/MLIR 19 bin directory")
     for name in ("run", "verify", "inspect-program"):
         command = commands.add_parser(name)
         if name == "verify":
@@ -171,12 +184,18 @@ def main(argv: list[str] | None = None) -> int:
             print(graph.to_json() if args.json else str(graph))
             return 0
         config = Hardware.load(args.config) if args.config else Hardware()
+        compiler_options = {
+            "compiler": args.compiler,
+            "mlir_opt": args.mlir_opt,
+            "emit_llvm": args.emit_llvm,
+            "llvm_bin": args.llvm_bin,
+        }
         print("NPUForge\nONNX-to-NPU Compiler & Hardware Simulator")
         if args.command in {"demo", "benchmark"}:
             if args.command == "benchmark" and (args.compare_schedulers or args.model):
-                runs = run_backend_benchmarks(args.output, args.model, config)
+                runs = run_backend_benchmarks(args.output, args.model, config, **compiler_options)
             else:
-                runs = run_benchmarks(args.output, config)
+                runs = run_benchmarks(args.output, config, **compiler_options)
         else:
             if args.arch:
                 config = config.alternative(args.arch)
@@ -184,6 +203,7 @@ def main(argv: list[str] | None = None) -> int:
                 "scheduler": args.schedule,
                 "reuse": not args.no_reuse,
                 "dram_limit": args.dram_limit,
+                **compiler_options,
             }
             run = compile_model(args.model, config, not args.no_opt, **options)
             run.write(args.output / config.architecture)

@@ -1,13 +1,22 @@
 """Regenerate checked-in benchmarks and real execution figures after installation."""
 
+import argparse
 import importlib.metadata
 import json
 import platform
 from pathlib import Path
 
-from npuforge.benchmark import run_backend_benchmarks, run_benchmarks, run_fusion_benchmarks
+from npuforge.benchmark import (
+    run_backend_benchmarks,
+    run_benchmarks,
+    run_fusion_benchmarks,
+    run_mlir_benchmarks,
+)
 from npuforge.reports import graph_svg, render_report, timeline_svg
 
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--mlir", action="store_true", help="also refresh the optional MLIR comparison")
+args = parser.parse_args()
 root = Path(__file__).resolve().parents[1]
 runs = run_benchmarks(root / "output" / "reference")
 render_report(runs, root / "output" / "report.html")
@@ -28,6 +37,12 @@ backend_runs = run_backend_benchmarks(backend_dir)
 render_report(backend_runs, backend_dir / "report.html")
 for name in ("results.json", "results.md"):
     (root / "benchmarks" / f"backend_{name}").write_bytes((backend_dir / name).read_bytes())
+if args.mlir:
+    mlir_dir = root / "output" / "mlir-comparison"
+    mlir_runs = run_mlir_benchmarks(mlir_dir)
+    render_report(mlir_runs, mlir_dir / "report.html")
+    for name in ("results.json", "results.md"):
+        (root / "benchmarks" / f"mlir_{name}").write_bytes((mlir_dir / name).read_bytes())
 packages = {}
 for name in (
     "npuforge",

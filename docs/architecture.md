@@ -7,6 +7,11 @@ scheduler for timing. ONNX Runtime supplies an independent numerical reference.
 The NumPy graph executor remains a separate unit-test reference. See the
 [backend pipeline](compiler_backend.md) for artifact loading and execution.
 
+An optional [MLIR frontend](mlir.md) represents these operations in a registered
+tensor dialect and performs native SSA rewrites. Its verified graph export rejoins
+the existing tiler, allocator and binary backend. Standard Linalg/LLVM lowering is
+also available as a separate CPU path; it does not replace the NPU timing model.
+
 ## Supported input contract
 
 - Default-domain ONNX opsets 13–18. Models generated here use opset 18 and IR 9.

@@ -16,7 +16,7 @@ jobs:
       - run: python -m pip install '.[dev]'
       - run: ruff check .
       - run: ruff format --check .
-      - run: clang-format --dry-run --Werror cpp/include/*.hpp cpp/src/*.cpp cpp/tests/*.cpp
+      - run: clang-format --dry-run --Werror cpp/include/*.hpp cpp/src/*.cpp cpp/tests/*.cpp mlir/include/*.h mlir/lib/*.cpp mlir/*.cpp
       - run: python -m pytest -q
       - run: cmake -S . -B build/native -DNPUFORGE_PYTHON=OFF -DCMAKE_BUILD_TYPE=Release
       - run: cmake --build build/native --parallel 2
@@ -31,4 +31,27 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: reports-${{ matrix.os }}
+          path: output/
+
+  mlir:
+    runs-on: ubuntu-24.04
+    env:
+      NPUFORGE_MLIR_OPT: ${{ github.workspace }}/build/mlir/npuforge-opt
+      NPUFORGE_LLVM_BIN: /usr/lib/llvm-19/bin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: sudo apt-get update -qq
+      - run: sudo apt-get install -y libmlir-19-dev mlir-19-tools llvm-19-dev clang-19 zlib1g-dev libzstd-dev
+      - run: python -m pip install '.[dev]'
+      - run: python scripts/build_mlir.py --llvm-prefix /usr/lib/llvm-19
+      - run: python -m pytest -q
+      - run: npuforge demo --compiler mlir --output output/mlir-demo
+      - run: npuforge compile output/mlir-demo/models/demo_mlp.onnx --compiler mlir --emit-llvm --llvm-bin "$NPUFORGE_LLVM_BIN" --output output/mlir-llvm
+      - run: python examples/compare_mlir.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mlir-reports
           path: output/

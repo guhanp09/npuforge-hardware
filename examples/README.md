@@ -37,3 +37,20 @@ npuforge benchmark --compare-schedulers --output output/schedulers
 is used only by `verify`. Outputs are an NPZ keyed by the original graph output
 names; a neighboring metrics JSON records native timing and memory use. The demo's
 sample inputs are ordinary runtime files and can be replaced without recompiling.
+
+## MLIR and LLVM
+
+After building the optional tool as described in [the MLIR guide](../docs/mlir.md):
+
+```bash
+export NPUFORGE_MLIR_OPT="$PWD/build/mlir/npuforge-opt"
+npuforge demo --compiler mlir --output output/mlir-demo
+python examples/compare_mlir.py
+npuforge compile output/mlir-demo/models/demo_mlp.onnx --compiler mlir \
+  --emit-llvm --llvm-bin /path/to/llvm19/bin --output output/mlir-llvm
+```
+
+The eight-case comparison uses identical MLP inputs, weights and hardware for the
+Python and MLIR optimizers, with optimization disabled/enabled on both mappings.
+Saved binary programs run through the ordinary `npuforge run` command and no longer
+require the MLIR toolchain.

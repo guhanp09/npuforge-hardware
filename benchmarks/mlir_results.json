@@ -1,0 +1,602 @@
+[
+  {
+    "architecture": "conventional",
+    "case": "conventional_python_unoptimized",
+    "compiler": "python",
+    "metrics": {
+      "allocation_efficiency": 0.7563451776649747,
+      "bottleneck": "memory port",
+      "compute_busy": 360,
+      "compute_utilization": 0.30795551753635586,
+      "cycles": 1169,
+      "dma_busy": 809,
+      "dma_utilization": 0.6920444824636441,
+      "dram_allocation_bytes": 9536,
+      "dram_busy": 809,
+      "dram_read_bytes": 13840,
+      "dram_utilization": 0.6920444824636441,
+      "dram_write_bytes": 6144,
+      "instruction_count": 44,
+      "instruction_image_bytes": 11520,
+      "latency_ns": 1169.0,
+      "offchip_bytes": 19984,
+      "offchip_read_bytes": 13840,
+      "peak_sram_bytes": 4608,
+      "per_operation": {
+        "op0_linear1": {
+          "busy_cycles": 560,
+          "end": 560,
+          "start": 0
+        },
+        "op1_Add": {
+          "busy_cycles": 151,
+          "end": 711,
+          "start": 560
+        },
+        "op2_Relu": {
+          "busy_cycles": 140,
+          "end": 851,
+          "start": 711
+        },
+        "op3_MatMul": {
+          "busy_cycles": 228,
+          "end": 1079,
+          "start": 851
+        },
+        "op4_Add": {
+          "busy_cycles": 90,
+          "end": 1169,
+          "start": 1079
+        }
+      },
+      "pim_busy": 0,
+      "pim_local_read_bytes": 0,
+      "pim_utilization": 0.0,
+      "resource_idle_cycles": {
+        "compute": 809,
+        "dma": 360,
+        "dram": 360,
+        "pim": 1169
+      },
+      "reused_allocation_bytes": 3072,
+      "weight_image_bytes": 4416
+    },
+    "model": "mlp.onnx",
+    "transformations": {
+      "dead_operations_removed": 0,
+      "enabled": false,
+      "final_operations": 5,
+      "fusion_patterns": 0,
+      "original_operations": 5
+    },
+    "verification": {
+      "atol": 1e-05,
+      "max_absolute_error": {
+        "y": 0.0
+      },
+      "passed": true,
+      "rtol": 0.0001,
+      "seed": 7
+    }
+  },
+  {
+    "architecture": "conventional",
+    "case": "conventional_python_optimized",
+    "compiler": "python",
+    "metrics": {
+      "allocation_efficiency": 0.9194630872483222,
+      "bottleneck": "memory port",
+      "compute_busy": 352,
+      "compute_utilization": 0.3724867724867725,
+      "cycles": 945,
+      "dma_busy": 593,
+      "dma_utilization": 0.6275132275132275,
+      "dram_allocation_bytes": 8768,
+      "dram_busy": 593,
+      "dram_read_bytes": 10768,
+      "dram_utilization": 0.6275132275132275,
+      "dram_write_bytes": 3072,
+      "instruction_count": 35,
+      "instruction_image_bytes": 9176,
+      "latency_ns": 945.0,
+      "offchip_bytes": 13840,
+      "offchip_read_bytes": 10768,
+      "peak_sram_bytes": 4096,
+      "per_operation": {
+        "op0_linear1_fused": {
+          "busy_cycles": 627,
+          "end": 627,
+          "start": 0
+        },
+        "op3_MatMul": {
+          "busy_cycles": 228,
+          "end": 855,
+          "start": 627
+        },
+        "op4_Add": {
+          "busy_cycles": 90,
+          "end": 945,
+          "start": 855
+        }
+      },
+      "pim_busy": 0,
+      "pim_local_read_bytes": 0,
+      "pim_utilization": 0.0,
+      "resource_idle_cycles": {
+        "compute": 593,
+        "dma": 352,
+        "dram": 352,
+        "pim": 945
+      },
+      "reused_allocation_bytes": 768,
+      "weight_image_bytes": 4416
+    },
+    "model": "mlp.onnx",
+    "transformations": {
+      "dead_operations_removed": 0,
+      "enabled": true,
+      "final_operations": 3,
+      "fusion_patterns": 1,
+      "original_operations": 5
+    },
+    "verification": {
+      "atol": 1e-05,
+      "max_absolute_error": {
+        "y": 0.0
+      },
+      "passed": true,
+      "rtol": 0.0001,
+      "seed": 7
+    }
+  },
+  {
+    "architecture": "conventional",
+    "case": "conventional_mlir_unoptimized",
+    "compiler": "mlir",
+    "metrics": {
+      "allocation_efficiency": 0.7563451776649747,
+      "bottleneck": "memory port",
+      "compute_busy": 360,
+      "compute_utilization": 0.30795551753635586,
+      "cycles": 1169,
+      "dma_busy": 809,
+      "dma_utilization": 0.6920444824636441,
+      "dram_allocation_bytes": 9536,
+      "dram_busy": 809,
+      "dram_read_bytes": 13840,
+      "dram_utilization": 0.6920444824636441,
+      "dram_write_bytes": 6144,
+      "instruction_count": 44,
+      "instruction_image_bytes": 11520,
+      "latency_ns": 1169.0,
+      "offchip_bytes": 19984,
+      "offchip_read_bytes": 13840,
+      "peak_sram_bytes": 4608,
+      "per_operation": {
+        "op0_linear1": {
+          "busy_cycles": 560,
+          "end": 560,
+          "start": 0
+        },
+        "op1_Add": {
+          "busy_cycles": 151,
+          "end": 711,
+          "start": 560
+        },
+        "op2_Relu": {
+          "busy_cycles": 140,
+          "end": 851,
+          "start": 711
+        },
+        "op3_MatMul": {
+          "busy_cycles": 228,
+          "end": 1079,
+          "start": 851
+        },
+        "op4_Add": {
+          "busy_cycles": 90,
+          "end": 1169,
+          "start": 1079
+        }
+      },
+      "pim_busy": 0,
+      "pim_local_read_bytes": 0,
+      "pim_utilization": 0.0,
+      "resource_idle_cycles": {
+        "compute": 809,
+        "dma": 360,
+        "dram": 360,
+        "pim": 1169
+      },
+      "reused_allocation_bytes": 3072,
+      "weight_image_bytes": 4416
+    },
+    "model": "mlp.onnx",
+    "transformations": {
+      "dead_operations_removed": 0,
+      "enabled": false,
+      "final_operations": 5,
+      "fusion_patterns": 0,
+      "original_operations": 5
+    },
+    "verification": {
+      "atol": 1e-05,
+      "max_absolute_error": {
+        "y": 0.0
+      },
+      "passed": true,
+      "rtol": 0.0001,
+      "seed": 7
+    }
+  },
+  {
+    "architecture": "conventional",
+    "case": "conventional_mlir_optimized",
+    "compiler": "mlir",
+    "metrics": {
+      "allocation_efficiency": 0.9194630872483222,
+      "bottleneck": "memory port",
+      "compute_busy": 352,
+      "compute_utilization": 0.3724867724867725,
+      "cycles": 945,
+      "dma_busy": 593,
+      "dma_utilization": 0.6275132275132275,
+      "dram_allocation_bytes": 8768,
+      "dram_busy": 593,
+      "dram_read_bytes": 10768,
+      "dram_utilization": 0.6275132275132275,
+      "dram_write_bytes": 3072,
+      "instruction_count": 35,
+      "instruction_image_bytes": 9176,
+      "latency_ns": 945.0,
+      "offchip_bytes": 13840,
+      "offchip_read_bytes": 10768,
+      "peak_sram_bytes": 4096,
+      "per_operation": {
+        "op2_Relu": {
+          "busy_cycles": 627,
+          "end": 627,
+          "start": 0
+        },
+        "op3_MatMul": {
+          "busy_cycles": 228,
+          "end": 855,
+          "start": 627
+        },
+        "op4_Add": {
+          "busy_cycles": 90,
+          "end": 945,
+          "start": 855
+        }
+      },
+      "pim_busy": 0,
+      "pim_local_read_bytes": 0,
+      "pim_utilization": 0.0,
+      "resource_idle_cycles": {
+        "compute": 593,
+        "dma": 352,
+        "dram": 352,
+        "pim": 945
+      },
+      "reused_allocation_bytes": 768,
+      "weight_image_bytes": 4416
+    },
+    "model": "mlp.onnx",
+    "transformations": {
+      "dead_operations_removed": 0,
+      "enabled": true,
+      "final_operations": 3,
+      "fusion_patterns": 1,
+      "original_operations": 5
+    },
+    "verification": {
+      "atol": 1e-05,
+      "max_absolute_error": {
+        "y": 0.0
+      },
+      "passed": true,
+      "rtol": 0.0001,
+      "seed": 7
+    }
+  },
+  {
+    "architecture": "pim",
+    "case": "pim_python_unoptimized",
+    "compiler": "python",
+    "metrics": {
+      "allocation_efficiency": 0.7563451776649747,
+      "bottleneck": "memory port",
+      "compute_busy": 72,
+      "compute_utilization": 0.07045009784735812,
+      "cycles": 1022,
+      "dma_busy": 629,
+      "dma_utilization": 0.6154598825831703,
+      "dram_allocation_bytes": 9536,
+      "dram_busy": 950,
+      "dram_read_bytes": 13840,
+      "dram_utilization": 0.9295499021526419,
+      "dram_write_bytes": 6144,
+      "instruction_count": 38,
+      "instruction_image_bytes": 9936,
+      "latency_ns": 1022.0,
+      "offchip_bytes": 15760,
+      "offchip_read_bytes": 9616,
+      "peak_sram_bytes": 4608,
+      "per_operation": {
+        "op0_linear1": {
+          "busy_cycles": 456,
+          "end": 456,
+          "start": 0
+        },
+        "op1_Add": {
+          "busy_cycles": 151,
+          "end": 607,
+          "start": 456
+        },
+        "op2_Relu": {
+          "busy_cycles": 140,
+          "end": 747,
+          "start": 607
+        },
+        "op3_MatMul": {
+          "busy_cycles": 185,
+          "end": 932,
+          "start": 747
+        },
+        "op4_Add": {
+          "busy_cycles": 90,
+          "end": 1022,
+          "start": 932
+        }
+      },
+      "pim_busy": 321,
+      "pim_local_read_bytes": 4224,
+      "pim_utilization": 0.31409001956947163,
+      "resource_idle_cycles": {
+        "compute": 950,
+        "dma": 393,
+        "dram": 72,
+        "pim": 701
+      },
+      "reused_allocation_bytes": 3072,
+      "weight_image_bytes": 4416
+    },
+    "model": "mlp.onnx",
+    "transformations": {
+      "dead_operations_removed": 0,
+      "enabled": false,
+      "final_operations": 5,
+      "fusion_patterns": 0,
+      "original_operations": 5
+    },
+    "verification": {
+      "atol": 1e-05,
+      "max_absolute_error": {
+        "y": 0.0
+      },
+      "passed": true,
+      "rtol": 0.0001,
+      "seed": 7
+    }
+  },
+  {
+    "architecture": "pim",
+    "case": "pim_python_optimized",
+    "compiler": "python",
+    "metrics": {
+      "allocation_efficiency": 0.9194630872483222,
+      "bottleneck": "memory port",
+      "compute_busy": 16,
+      "compute_utilization": 0.020050125313283207,
+      "cycles": 798,
+      "dma_busy": 413,
+      "dma_utilization": 0.5175438596491229,
+      "dram_allocation_bytes": 8768,
+      "dram_busy": 782,
+      "dram_read_bytes": 10768,
+      "dram_utilization": 0.9799498746867168,
+      "dram_write_bytes": 3072,
+      "instruction_count": 29,
+      "instruction_image_bytes": 7592,
+      "latency_ns": 798.0,
+      "offchip_bytes": 9616,
+      "offchip_read_bytes": 6544,
+      "peak_sram_bytes": 3072,
+      "per_operation": {
+        "op0_linear1_fused": {
+          "busy_cycles": 523,
+          "end": 523,
+          "start": 0
+        },
+        "op3_MatMul": {
+          "busy_cycles": 185,
+          "end": 708,
+          "start": 523
+        },
+        "op4_Add": {
+          "busy_cycles": 90,
+          "end": 798,
+          "start": 708
+        }
+      },
+      "pim_busy": 369,
+      "pim_local_read_bytes": 4224,
+      "pim_utilization": 0.462406015037594,
+      "resource_idle_cycles": {
+        "compute": 782,
+        "dma": 385,
+        "dram": 16,
+        "pim": 429
+      },
+      "reused_allocation_bytes": 768,
+      "weight_image_bytes": 4416
+    },
+    "model": "mlp.onnx",
+    "transformations": {
+      "dead_operations_removed": 0,
+      "enabled": true,
+      "final_operations": 3,
+      "fusion_patterns": 1,
+      "original_operations": 5
+    },
+    "verification": {
+      "atol": 1e-05,
+      "max_absolute_error": {
+        "y": 0.0
+      },
+      "passed": true,
+      "rtol": 0.0001,
+      "seed": 7
+    }
+  },
+  {
+    "architecture": "pim",
+    "case": "pim_mlir_unoptimized",
+    "compiler": "mlir",
+    "metrics": {
+      "allocation_efficiency": 0.7563451776649747,
+      "bottleneck": "memory port",
+      "compute_busy": 72,
+      "compute_utilization": 0.07045009784735812,
+      "cycles": 1022,
+      "dma_busy": 629,
+      "dma_utilization": 0.6154598825831703,
+      "dram_allocation_bytes": 9536,
+      "dram_busy": 950,
+      "dram_read_bytes": 13840,
+      "dram_utilization": 0.9295499021526419,
+      "dram_write_bytes": 6144,
+      "instruction_count": 38,
+      "instruction_image_bytes": 9936,
+      "latency_ns": 1022.0,
+      "offchip_bytes": 15760,
+      "offchip_read_bytes": 9616,
+      "peak_sram_bytes": 4608,
+      "per_operation": {
+        "op0_linear1": {
+          "busy_cycles": 456,
+          "end": 456,
+          "start": 0
+        },
+        "op1_Add": {
+          "busy_cycles": 151,
+          "end": 607,
+          "start": 456
+        },
+        "op2_Relu": {
+          "busy_cycles": 140,
+          "end": 747,
+          "start": 607
+        },
+        "op3_MatMul": {
+          "busy_cycles": 185,
+          "end": 932,
+          "start": 747
+        },
+        "op4_Add": {
+          "busy_cycles": 90,
+          "end": 1022,
+          "start": 932
+        }
+      },
+      "pim_busy": 321,
+      "pim_local_read_bytes": 4224,
+      "pim_utilization": 0.31409001956947163,
+      "resource_idle_cycles": {
+        "compute": 950,
+        "dma": 393,
+        "dram": 72,
+        "pim": 701
+      },
+      "reused_allocation_bytes": 3072,
+      "weight_image_bytes": 4416
+    },
+    "model": "mlp.onnx",
+    "transformations": {
+      "dead_operations_removed": 0,
+      "enabled": false,
+      "final_operations": 5,
+      "fusion_patterns": 0,
+      "original_operations": 5
+    },
+    "verification": {
+      "atol": 1e-05,
+      "max_absolute_error": {
+        "y": 0.0
+      },
+      "passed": true,
+      "rtol": 0.0001,
+      "seed": 7
+    }
+  },
+  {
+    "architecture": "pim",
+    "case": "pim_mlir_optimized",
+    "compiler": "mlir",
+    "metrics": {
+      "allocation_efficiency": 0.9194630872483222,
+      "bottleneck": "memory port",
+      "compute_busy": 16,
+      "compute_utilization": 0.020050125313283207,
+      "cycles": 798,
+      "dma_busy": 413,
+      "dma_utilization": 0.5175438596491229,
+      "dram_allocation_bytes": 8768,
+      "dram_busy": 782,
+      "dram_read_bytes": 10768,
+      "dram_utilization": 0.9799498746867168,
+      "dram_write_bytes": 3072,
+      "instruction_count": 29,
+      "instruction_image_bytes": 7592,
+      "latency_ns": 798.0,
+      "offchip_bytes": 9616,
+      "offchip_read_bytes": 6544,
+      "peak_sram_bytes": 3072,
+      "per_operation": {
+        "op2_Relu": {
+          "busy_cycles": 523,
+          "end": 523,
+          "start": 0
+        },
+        "op3_MatMul": {
+          "busy_cycles": 185,
+          "end": 708,
+          "start": 523
+        },
+        "op4_Add": {
+          "busy_cycles": 90,
+          "end": 798,
+          "start": 708
+        }
+      },
+      "pim_busy": 369,
+      "pim_local_read_bytes": 4224,
+      "pim_utilization": 0.462406015037594,
+      "resource_idle_cycles": {
+        "compute": 782,
+        "dma": 385,
+        "dram": 16,
+        "pim": 429
+      },
+      "reused_allocation_bytes": 768,
+      "weight_image_bytes": 4416
+    },
+    "model": "mlp.onnx",
+    "transformations": {
+      "dead_operations_removed": 0,
+      "enabled": true,
+      "final_operations": 3,
+      "fusion_patterns": 1,
+      "original_operations": 5
+    },
+    "verification": {
+      "atol": 1e-05,
+      "max_absolute_error": {
+        "y": 0.0
+      },
+      "passed": true,
+      "rtol": 0.0001,
+      "seed": 7
+    }
+  }
+]

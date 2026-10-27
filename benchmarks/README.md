@@ -55,3 +55,17 @@ no-reuse footprint by 19.0%. Transfers and cycles are unchanged. These results s
 allocation savings, not a scheduling latency improvement. `allocation_efficiency`
 is allocated bytes / the aligned no-reuse footprint (lower is better). Reused bytes
 sum allocation requests served from holes; they are not a peak-live-byte measure.
+
+## Python / MLIR compiler comparison
+
+With the optional tool configured, run `python examples/compare_mlir.py` or refresh
+all references with `python scripts/refresh_artifacts.py --mlir`.
+`mlir_results.json` and `mlir_results.md` contain eight actual runs of the reference
+MLP, crossing compiler path, optimization setting and conventional/PIM mapping.
+Inputs, weights, tiling and hardware rates are identical.
+
+Both paths produce 1,169 unoptimized / 945 optimized conventional cycles and
+1,022 unoptimized / 798 optimized PIM cycles. Traffic, peak SRAM and DRAM allocation
+also match. The result validates interoperability and equivalent transformations;
+MLIR does not add a latency multiplier or claim an improvement over the Python
+optimizer. These remain simulated NPU metrics, not LLVM CPU timings.

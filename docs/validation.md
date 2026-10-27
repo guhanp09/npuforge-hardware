@@ -7,6 +7,40 @@ and packaging on Ubuntu and macOS. Hosted checks passed for the published v0.3
 release on 27 October 2026. The v0.4 backend has not been pushed; its evidence below
 comes from local macOS builds and Linux Docker runs, not hosted CI.
 
+## MLIR extension (v0.5)
+
+The complete optional-tool configuration passes **291 Python tests** on macOS
+arm64/Python 3.11 and 3.12, and Debian Bookworm x86_64/Python 3.12 in Docker. This includes the original 245 regressions and 46 new MLIR tests.
+All 46 MLIR tests also pass with the native tool built under AddressSanitizer and
+UndefinedBehaviorSanitizer. LLVM/MLIR 19.1.7 is pinned for these runs.
+
+New coverage includes registered-dialect parsing and verifiers, genuine SSA
+fusion/dead-code rewrites, public-value safety, initializer bits, Unicode names,
+idempotence, invalid IR, constrained SRAM, scalar/multidirectional broadcasts,
+Gemm transposes/epilogues, deep SSA graphs and compiler comparison reports.
+Generated LLVM IR is compiled with Clang and executed in separate bounded test
+processes; its actual outputs are checked against ONNX Runtime.
+
+The clean Linux run also passed formatting, the MLIR demo, LLVM emission,
+standalone binary execution and source/wheel builds. All eight compiler comparison
+metric dictionaries matched macOS exactly. The installed macOS wheel compiled a
+model through MLIR/LLVM outside the source directory, then ran its binary after
+removing the ONNX/MLIR files and disabling tool discovery.
+
+Without optional tools, the core configuration passes 247 tests and explicitly
+skips the 44 native-tool cases. Both native core CTest suites still pass in Release
+and under ASan/UBSan. The separate MLIR CI job is configured but has not run on
+GitHub because this version has not been pushed. The v0.4 evidence below remains
+the baseline release record.
+
+Reproduce the full optional Linux check:
+
+```bash
+docker run --rm --platform linux/amd64 --cpus=2 --memory=3g \
+  --mount "type=bind,src=$PWD,dst=/source,readonly" \
+  python:3.12-slim-bookworm sh /source/scripts/validate_mlir_linux.sh
+```
+
 ## Tested configurations
 
 | Platform | Python | Checks |

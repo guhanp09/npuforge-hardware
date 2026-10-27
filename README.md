@@ -95,6 +95,35 @@ writes both targets. `run` accepts NPZ inputs keyed by manifest name, or NPY for
 input. `verify` generates deterministic inputs if none are supplied.
 [Examples](examples/README.md) show the complete workflow.
 
+## Optional MLIR compiler path
+
+A native LLVM/MLIR 19 tool implements the registered `npuforge` tensor dialect,
+SSA fusion/dead-code rewrites and conversion to Linalg/Arith/Tensor. Its exported
+optimized graph feeds the same allocator, scheduler, binary generator and native
+interpreter as the Python frontend. This path does not call the Python optimizer.
+
+```bash
+# macOS toolchain; the default compiler does not require LLVM.
+brew install llvm@19
+python scripts/build_mlir.py --llvm-prefix "$(brew --prefix llvm@19)"
+export NPUFORGE_MLIR_OPT="$PWD/build/mlir/npuforge-opt"
+npuforge demo --compiler mlir --output output/mlir-demo
+python examples/compare_mlir.py
+```
+
+`compile`, `demo` and `benchmark` accept `--compiler mlir` and `--mlir-opt PATH`.
+Add `--emit-llvm --llvm-bin /path/to/llvm19/bin` to generate verified LLVM IR through
+upstream bufferization and dialect-conversion passes. The NPU executable still
+comes from the optimized graph bridge; the LLVM output is a separate CPU lowering.
+Tests compile that LLVM IR with Clang and compare actual CPU outputs against ONNX
+Runtime, including scalar broadcasting and transposed/scaled Gemm.
+
+Each MLIR run saves `original.mlir`, `optimized.mlir`, `frontend.graph.json`,
+`lowered.linalg.mlir` and `mlir.json`; LLVM emission also saves `lowered.llvm.mlir`
+and `model.ll`. The comparison report shows identical NPU cycles/traffic for both
+compiler paths on the reference MLP. No speedup is attributed to MLIR itself.
+See [MLIR design, Linux setup and validation](docs/mlir.md).
+
 ## Compiler and simulator decisions
 
 The importer accepts default-domain ONNX opsets **13–18** with positive static
@@ -208,8 +237,8 @@ The GitHub Actions workflow covers builds, formatting, Python/native tests, bina
 execution, examples and packaging on macOS and Linux. See [validation evidence](docs/validation.md) for what was actually
 executed locally. The MIT-licensed source is published at
 [guhanp09/npuforge](https://github.com/guhanp09/npuforge). Published v0.3 checks are available in
-[GitHub Actions](https://github.com/guhanp09/npuforge/actions); the v0.4 backend has
-local validation and awaits publication.
+[GitHub Actions](https://github.com/guhanp09/npuforge/actions); the v0.4 backend and v0.5 MLIR extension have
+local validation and await publication.
 
 The tested dependency snapshot is available in `requirements-tested.txt` for Python
 3.12. To repeat Linux validation locally with Docker (source mounted read-only):

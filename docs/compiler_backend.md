@@ -16,6 +16,11 @@ standalone loader has no ONNX dependency in its execution path; ONNX Runtime is
 called separately for reference verification. Python binds inputs and reconstructs
 output arrays; C++ performs tile arithmetic.
 
+`--compiler mlir` routes optimization through the optional native MLIR tool and
+reconstructs this same graph IR from its checked export before operator ordering.
+It also saves tensor-dialect and standard-dialect artifacts; `--emit-llvm` adds
+verified LLVM IR. These compiler files are not needed by `run`. See [MLIR](mlir.md).
+
 ## Artifact contract
 
 | File | Purpose |

@@ -1,0 +1,5 @@
+{
+  "compiler": "Apple clang version 16.0.0 (clang-1600.0.26.6)",
+  "llvm_mlir": "Homebrew LLVM version 19.1.7\n  Optimized build.",
+  "upstream_llvm_cpu_verification": true
+}

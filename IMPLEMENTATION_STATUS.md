@@ -1,34 +1,33 @@
-# Backend validation status — v0.4.0
+# Compiler validation status — v0.5.0
 
-The existing ONNX frontend, typed IR, optimizations, tiling and native resource
-scheduler are retained. The original 182-test regression suite remains passing.
+The addressed binary backend and optional MLIR integration are complete.
+The existing ONNX frontend, graph IR, allocator, scheduler, binary codec and native
+interpreter remain the NPU execution path.
 
-Completed: aligned DRAM allocation and lifetime reuse; concrete SRAM partitions;
-baseline/memory-aware ordering; addressed instruction IR; versioned binary codec;
-real FP32 weight image; checked manifest/map/schedule loader; native instruction
-arithmetic and timing; standalone run/verify/inspect-program; binary-first demo;
-SRAM lifetime/report views; allocation benchmarks and focused format/design docs.
+MLIR components: registered ODS FP32 tensor dialect; shape/type/identity verifiers;
+SSA fusion and dead-code rewrites; byte-preserving graph bridge consumed by the
+existing backend; full Linalg/Arith/Tensor conversion; optional upstream bufferization,
+LLVM conversion/translation and IR verification; CLI options, reports and comparison.
+Generated LLVM CPU code is executed and compared with ONNX Runtime in tests.
 
-Verified on macOS arm64: 245 Python tests on Python 3.11 and 3.12; both Release
-CTest suites; both suites under ASan/UBSan; Ruff and clang-format; source/wheel
-builds; dependency checks; installed-wheel execution outside the repository without
-an ONNX model. Compiled outputs are compared with ONNX Runtime at rtol=1e-4,
-atol=1e-5. Partial-reduction stores and incomplete public-output verification have regressions.
+Verified: 291 tests on macOS arm64/Python 3.11 and 3.12 and Linux x86_64/Python 3.12;
+all 46 MLIR tests with an ASan/UBSan native tool; both original CTest suites in
+Release and under sanitizers; formatting; clean source/wheel builds; dependency
+checks; installed-wheel compilation and binary execution outside the repository.
+Core-only installation passes 247 tests and explicitly skips 44 optional-tool cases.
 
-Latest commands: `npuforge demo`; `npuforge inspect-program output/mlp_optimized`;
-`npuforge run output/mlp_optimized --inputs output/mlp_optimized/inputs.npz`;
-`npuforge verify output/models/demo_mlp.onnx --compiled output/mlp_optimized`;
-`npuforge benchmark --compare-schedulers --output output/schedulers`.
+Latest commands:
+- `python scripts/build_mlir.py --llvm-prefix /path/to/llvm19`
+- `npuforge demo --compiler mlir --mlir-opt build/mlir/npuforge-opt --output output/mlir-demo`
+- `npuforge compile output/mlir-demo/models/demo_mlp.onnx --compiler mlir --mlir-opt build/mlir/npuforge-opt --emit-llvm --llvm-bin /path/to/llvm19/bin --output output/mlir-llvm`
+- `python examples/compare_mlir.py --mlir-opt build/mlir/npuforge-opt`
 
-Allocation benchmark: baseline 10,624 B, memory-aware 8,704 B, memory-aware without
-reuse 10,752 B. All take 1,112 simulated cycles and move 16,640 off-chip bytes.
+All eight compiler comparison metric sets match between macOS and Linux. Both
+compiler paths take 1,169/945 unoptimized/optimized conventional cycles and
+1,022/798 PIM cycles. No additional latency improvement is attributed to MLIR.
+The existing allocation comparison remains 10,624/8,704/10,752 DRAM bytes for
+baseline/memory-aware/no-reuse, each at 1,112 simulated cycles.
 
-Linux x86_64 validation in a clean Debian/Python 3.12 container passed all 245
-Python tests, both native suites, formatting, demos, standalone binary execution,
-verification, scheduling comparison and source/wheel builds. All 13 benchmark
-metric dictionaries matched macOS exactly. Source/wheel archive checks passed.
-
-Stage A is complete. No known critical correctness defect remains. No required
-implementation or verification work is pending.
-Limits: static FP32 subset, conservative single tile workspace, hypothetical timing
-model, 64 MiB per data space. Advanced features have not been implemented.
+No required implementation or verification work is pending. No known critical
+correctness issue remains. Scope: static FP32 subset, single tile workspace,
+hypothetical NPU timing and LLVM/MLIR 19. Hosted CI for v0.5 awaits publication.

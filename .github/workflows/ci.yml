@@ -23,6 +23,10 @@ jobs:
       - run: ctest --test-dir build/native --output-on-failure
       - run: npuforge demo
       - run: python examples/compare_gemm_fusion.py
+      - run: npuforge inspect-program output/mlp_optimized
+      - run: npuforge run output/mlp_optimized --inputs output/mlp_optimized/inputs.npz --output output/replayed.npz
+      - run: npuforge verify output/models/demo_mlp.onnx --compiled output/mlp_optimized
+      - run: npuforge benchmark --compare-schedulers --output output/schedulers
       - run: python -m build
       - uses: actions/upload-artifact@v4
         with:

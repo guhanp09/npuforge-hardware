@@ -13,13 +13,13 @@
 </g>
 <g font-size="17" font-weight="650" text-anchor="middle">
 <text x="110" y="112">ONNX</text><text x="305" y="112">Tensor IR</text>
-<text x="500" y="112">Optimize</text><text x="695" y="112">Tile &amp; lower</text>
-<text x="890" y="112">Instruction DAG</text><text x="1087" y="112">C++ simulator</text>
+<text x="500" y="112">Optimize</text><text x="695" y="112">Tile &amp; allocate</text>
+<text x="890" y="112">Binary images</text><text x="1087" y="112">Native execution</text>
 </g>
 <g font-size="12" text-anchor="middle" fill="#62718a">
 <text x="110" y="140">Check + infer shapes</text><text x="305" y="140">Types + dependencies</text>
 <text x="500" y="140">Dead code + fusion</text><text x="695" y="140">SRAM + data movement</text>
-<text x="890" y="140">DMA / compute / PIM</text><text x="1087" y="140">Events + contention</text>
+<text x="890" y="140">Addresses + schedule</text><text x="1087" y="140">FP32 + timing</text>
 </g>
 <g stroke="#75829b" fill="none" marker-end="url(#a)">
 <path d="M190 125H219"/><path d="M385 125H414"/><path d="M580 125H609"/>
@@ -29,7 +29,7 @@
 </g>
 <rect x="30" y="235" width="480" height="75" rx="12" fill="#e5f3ed" stroke="#cce5da"/>
 <text x="54" y="264" font-size="15" font-weight="650">Independent correctness</text>
-<text x="54" y="287" font-size="13" fill="#4b7365">NumPy FP32 semantics ↔ ONNX Runtime reference</text>
+<text x="54" y="287" font-size="13" fill="#4b7365">Compiled FP32 outputs ↔ ONNX Runtime reference</text>
 <rect x="615" y="235" width="555" height="75" rx="12" fill="white" stroke="#d3daea"/>
 <text x="639" y="264" font-size="15" font-weight="650">Reproducible evidence</text>
 <text x="639" y="287" font-size="13" fill="#62718a">Cycles · bytes · utilization · traces · benchmarks · local HTML</text>

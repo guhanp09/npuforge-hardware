@@ -74,15 +74,38 @@ def run_fusion_benchmarks(directory: str | Path) -> list[tuple[str, Run]]:
     return runs
 
 
+def run_backend_benchmarks(
+    directory: str | Path, model: str | Path | None = None, hardware: Hardware | None = None
+) -> list[tuple[str, Run]]:
+    directory = Path(directory)
+    if model is None:
+        model = generate_model(directory / "models" / "branches.onnx", "branches", 8, 8, 64)
+    runs, rows = [], []
+    for label, scheduler, reuse in [
+        ("baseline", "baseline", True),
+        ("memory_aware", "memory-aware", True),
+        ("memory_aware_no_reuse", "memory-aware", False),
+    ]:
+        run = compile_model(model, hardware, scheduler=scheduler, reuse=reuse)
+        run.write(directory / label)
+        runs.append((label, run))
+        rows.append({"case": label, "scheduler": scheduler, "reuse": reuse, **run.summary()})
+    (directory / "results.json").write_text(json.dumps(rows, sort_keys=True, indent=2) + "\n")
+    (directory / "results.md").write_text(benchmark_table(runs))
+    return runs
+
+
 def benchmark_table(runs: list[tuple[str, Run]]) -> str:
     lines = [
-        "| Case | Cycles | Latency (ns) | Off-chip bytes | PIM-local bytes | Peak SRAM |",
-        "| :--- | ---: | ---: | ---: | ---: | ---: |",
+        "| Case | Cycles | Latency (ns) | Off-chip bytes | PIM-local bytes | "
+        "Peak SRAM | DRAM allocation |",
+        "| :--- | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for label, run in runs:
         m = run.metrics
         lines.append(
             f"| {label} | {m['cycles']} | {m['latency_ns']:.0f} | "
-            f"{m['offchip_bytes']} | {m['pim_local_read_bytes']} | {m['peak_sram_bytes']} |"
+            f"{m['offchip_bytes']} | {m['pim_local_read_bytes']} | {m['peak_sram_bytes']} | "
+            f"{m['dram_allocation_bytes']} |"
         )
     return "\n".join(lines) + "\n"

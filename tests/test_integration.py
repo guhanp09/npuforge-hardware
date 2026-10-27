@@ -15,7 +15,7 @@ from npuforge.functional import verify
 from npuforge.importer import import_onnx
 from npuforge.models import generate_model
 from npuforge.pipeline import compile_model
-from npuforge.reports import graph_svg, render_report, timeline_svg
+from npuforge.reports import graph_svg, memory_svg, render_report, timeline_svg
 
 
 def test_cli_demo_artifacts_and_reproducibility(tmp_path):
@@ -94,7 +94,11 @@ def test_report_escaping_metrics_and_svg(tmp_path):
     assert "&lt;img" in report
     assert "custom &lt;model&gt;" in report
     assert f"{run.metrics['cycles']:,}" in report
-    for svg in (timeline_svg(run), graph_svg(run.graph)):
+    assert "SRAM allocation lifetimes" in report
+    assert "Imported graph before optimization" in report
+    assert "instructions.bin" in report
+    assert f"{run.metrics['dram_allocation_bytes']:,}" in report
+    for svg in (timeline_svg(run), graph_svg(run.graph), memory_svg(run)):
         ET.fromstring(svg)
     assert run.metrics["latency_ns"] == run.metrics["cycles"]
     assert run.metrics["offchip_bytes"] == (

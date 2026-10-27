@@ -1,15 +1,15 @@
 # NPUForge
 
-**An ONNX-to-NPU compiler and native C++17 hardware simulator.** Import real static
-FP32 models, optimize a typed tensor graph, emit scratchpad-bounded instructions,
-and study compute, DMA, and memory contention on a documented hypothetical NPU.
+**A hardware-aware ONNX compiler with executable NPU binary images.** Import static
+FP32 models, optimize a typed graph, allocate DRAM/SRAM addresses, schedule and encode
+instructions, then execute them in a native C++17 interpreter and hardware simulator.
 
 ![Compiler and simulator architecture](docs/figures/architecture.svg)
 
-The complete pipeline runs on a normal CPU. NumPy implements numerical semantics;
-ONNX Runtime independently checks results. C++ schedules the generated instruction
-DAG and calculates performance. No accelerator, account, downloaded model or cloud
-service is required.
+The complete pipeline runs on a normal CPU. C++ decodes the binary instructions,
+executes addressed FP32 arithmetic and schedules compute, DMA and PIM resources.
+ONNX Runtime independently checks the resulting tensors. Saved programs run without
+the original ONNX model. No accelerator, account or downloaded model is required.
 
 ## Quick start
 
@@ -30,7 +30,8 @@ npuforge demo
 
 Open **`output/report.html`** in any browser. It is fully self-contained. The demo
 creates two real ONNX models, verifies both, and runs all six compiler/architecture
-comparisons. Inspectable IR, instruction and native trace JSON accompany the report.
+comparisons. Each case includes real instruction/weight images, a manifest, memory
+map, schedule, input/output tensors, IR and the native execution trace.
 
 Actual excerpt from the default run:
 
@@ -40,6 +41,8 @@ mlp_optimized · demo_mlp.onnx · conventional
   [PASS] Optimization: 5 → 3 ops; 0 dead; 1 fused
   [PASS] Hardware lowering: 35 instructions
   [PASS] Native C++ simulation / numerical verification against ONNX Runtime
+  [PASS] Address allocation / memory-aware scheduling / binary encoding and loading
+  Images 9,176 B instructions, 4,416 B weights; DRAM allocation 8,768 B
   Cycles 945  |  Latency 945 ns  |  Off-chip 13,840 B  |  SRAM peak 4,096 B
 ```
 
@@ -56,12 +59,17 @@ mlp_optimized · demo_mlp.onnx · conventional
   `MatMul → Add → Relu` and `Gemm → Relu` fusion, preserving observable/shared intermediates.
 - **Hardware backend:** M/N/K tiling, boundary handling, accumulation, explicit
   DMA and SRAM allocation/release, conventional and memory-local matrix mappings.
+- **Memory and code generation:** aligned lifetime allocation and reuse, baseline
+  and memory-aware operator scheduling, versioned little-endian instruction records,
+  real FP32 weights, checksummed manifests and a validating standalone loader.
+- **Native execution:** addressed FP32 tile arithmetic, buffer ownership, operand
+  provenance and transfer-completion checks.
 - **Native simulator:** deterministic event scheduling, dependency checks, SRAM
   pressure, compute/DMA/PIM contention, a shared DRAM port, execution traces,
   modeled latency, movement, utilization and resource pressure analysis.
-- **Verification and presentation:** independent NumPy execution, ONNX Runtime
-  comparisons, six reproducible benchmarks, an offline HTML report with graph and
-  timeline SVGs, unit/integration/stress tests and native timing tests.
+- **Verification and presentation:** compiled-output comparisons against ONNX
+  Runtime, reproducible architecture/fusion/scheduling benchmarks, offline HTML
+  graphs, timelines and SRAM lifetimes, malformed-image and bounded stress tests.
 
 ## Run your own model
 
@@ -72,13 +80,20 @@ npuforge compile output/models/demo_mlp.onnx --compare --output output/custom
 npuforge compile output/models/demo_mlp.onnx --no-opt --output output/baseline
 npuforge compile output/models/demo_matmul.onnx --config configs/pim.json --output output/pim
 npuforge benchmark --output output/benchmarks
+npuforge benchmark --compare-schedulers --output output/schedulers
+npuforge inspect-program output/custom/conventional
+npuforge run output/custom/conventional --inputs output/custom/conventional/inputs.npz
+npuforge verify output/models/demo_mlp.onnx --compiled output/custom/conventional
 ```
 
 `compile` always imports, compiles, simulates, verifies, and writes a report. Use
 `--arch conventional|pim` to override the configuration's architecture. Hardware
 configurations are plain JSON, with validated capacities, rates, setup costs,
 clock and tile bounds. Errors return a nonzero exit status with an actionable
-message. [Examples](examples/README.md) show generating and inspecting models.
+message. A single-target compile writes to `output/<architecture>/`; `--compare`
+writes both targets. `run` accepts NPZ inputs keyed by manifest name, or NPY for one
+input. `verify` generates deterministic inputs if none are supplied.
+[Examples](examples/README.md) show the complete workflow.
 
 ## Compiler and simulator decisions
 
@@ -122,7 +137,9 @@ and executes the bias/activation epilogue on the final reduction tile.
 The lowerer reserves all input, weight,
 accumulator and optional bias staging before issuing a tile, and reduces tile sizes
 until they fit. It spills operation outputs to DRAM and conservatively uses a single
-tile workspace. There is no global buffer or scheduling optimizer.
+tile workspace. A deterministic lifetime allocator reuses dead DRAM buffers; the
+memory-aware scheduler favors ready operations that release more temporary storage.
+It preserves the conservative tile barriers and does not promise better latency.
 
 The C++ simulator can overlap independent compute and DMA instructions, enforcing
 exclusive resources and live SRAM capacity. Total cycles are the **last completion
@@ -187,11 +204,12 @@ Numerical tolerances are **rtol `1e-4`, atol `1e-5`**. Native hand calculations 
 single compute/transfer, dependency serialization, independent overlap, resource
 contention, PIM/DRAM sharing, allocation lifetime, deadlock and repeatability.
 
-GitHub Actions runs the build, formatting, Python/native tests, demo and packaging
-on macOS and Linux. See [validation evidence](docs/validation.md) for what was actually
+The GitHub Actions workflow covers builds, formatting, Python/native tests, binary
+execution, examples and packaging on macOS and Linux. See [validation evidence](docs/validation.md) for what was actually
 executed locally. The MIT-licensed source is published at
-[guhanp09/npuforge](https://github.com/guhanp09/npuforge). Hosted build results and
-downloadable reports are available in [GitHub Actions](https://github.com/guhanp09/npuforge/actions).
+[guhanp09/npuforge](https://github.com/guhanp09/npuforge). Published v0.3 checks are available in
+[GitHub Actions](https://github.com/guhanp09/npuforge/actions); the v0.4 backend has
+local validation and awaits publication.
 
 The tested dependency snapshot is available in `requirements-tested.txt` for Python
 3.12. To repeat Linux validation locally with Docker (source mounted read-only):
@@ -204,13 +222,17 @@ docker run --rm --platform linux/amd64 \
 
 ## Scope
 
-NPUForge supports a small set of static FP32 operations. Its C++ engine models
-execution timing; NumPy executes tensor values. It is not a
-silicon-validated or general cycle-accurate simulator. It does not model physical
+NPUForge supports a small set of static FP32 operations. Its C++ engine executes
+binary tensor instructions and models resource timing. The model has not been
+validated against silicon and does not simulate detailed hardware pipelines. It does not model physical
 banks, caches, detailed pipelines, energy, quantization, dynamic shapes, batched
-MatMul, convolution or arbitrary ONNX graphs. DRAM capacity is assumed sufficient.
+MatMul, convolution or arbitrary ONNX graphs. DRAM and SRAM address spaces each
+have a 64 MiB interpreter limit; the default scratchpad is 64 KiB.
 The hardware model is hypothetical and does not represent a commercial chip.
 
+Backend details: [pipeline and artifacts](docs/compiler_backend.md),
+[binary specification](docs/instruction_format.md),
+[memory planning](docs/memory_planning.md), [scheduling](docs/scheduling.md).
 See [CHANGELOG.md](CHANGELOG.md) for version history.
 
 ## License

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0
+
+- Emit versioned executable instruction and FP32 weight images with checked manifests.
+- Allocate aligned DRAM tensors from lifetimes, reuse dead storage, and map tile SRAM.
+- Compare baseline and memory-aware operation schedules using the native resource model.
+- Decode and execute addressed instructions in C++, validating ownership, operand
+  provenance, reduction order and transfer-completion hazards.
+- Add standalone run, verify and inspect-program commands, memory/report views,
+  scheduling benchmarks and malformed-image/native execution tests.
+
 ## 0.3.0
 
 - Fuse Gemm followed by Relu when the intermediate result is neither shared nor public.

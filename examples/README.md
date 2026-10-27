@@ -21,3 +21,19 @@ weights, specialized accelerator hardware, external account or service is requir
 The fusion comparison produces one report containing conventional/PIM, each with
 optimization disabled and enabled. Every case is compiled, simulated natively and
 verified against ONNX Runtime. Override its artifact directory with `--output`.
+
+## Execute a saved binary program
+
+```bash
+npuforge demo
+npuforge inspect-program output/mlp_optimized
+npuforge run output/mlp_optimized --inputs output/mlp_optimized/inputs.npz \
+  --output output/replayed.npz
+npuforge verify output/models/demo_mlp.onnx --compiled output/mlp_optimized
+npuforge benchmark --compare-schedulers --output output/schedulers
+```
+
+`run` needs only the five compiled artifact files and runtime inputs. The ONNX file
+is used only by `verify`. Outputs are an NPZ keyed by the original graph output
+names; a neighboring metrics JSON records native timing and memory use. The demo's
+sample inputs are ordinary runtime files and can be replaced without recompiling.

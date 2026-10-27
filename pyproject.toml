@@ -4,8 +4,8 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "npuforge"
-version = "0.3.0"
-description = "A static ONNX compiler and native abstract NPU performance simulator"
+version = "0.4.0"
+description = "Hardware-aware ONNX compiler and native NPU binary interpreter/simulator"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

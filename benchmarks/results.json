@@ -18,16 +18,20 @@
       "tile_n": 16
     },
     "metrics": {
+      "allocation_efficiency": 1.0,
       "bottleneck": "memory port",
       "compute_busy": 208,
       "compute_utilization": 0.37142857142857144,
       "cycles": 560,
       "dma_busy": 352,
       "dma_utilization": 0.6285714285714286,
+      "dram_allocation_bytes": 6656,
       "dram_busy": 352,
       "dram_read_bytes": 7168,
       "dram_utilization": 0.6285714285714286,
       "dram_write_bytes": 1536,
+      "instruction_count": 18,
+      "instruction_image_bytes": 4724,
       "latency_ns": 560.0,
       "offchip_bytes": 8704,
       "offchip_read_bytes": 7168,
@@ -41,7 +45,15 @@
       },
       "pim_busy": 0,
       "pim_local_read_bytes": 0,
-      "pim_utilization": 0.0
+      "pim_utilization": 0.0,
+      "resource_idle_cycles": {
+        "compute": 352,
+        "dma": 208,
+        "dram": 208,
+        "pim": 560
+      },
+      "reused_allocation_bytes": 0,
+      "weight_image_bytes": 3072
     },
     "model": "demo_matmul.onnx",
     "model_dimensions": [
@@ -86,16 +98,20 @@
       "tile_n": 16
     },
     "metrics": {
+      "allocation_efficiency": 1.0,
       "bottleneck": "memory port",
       "compute_busy": 0,
       "compute_utilization": 0.0,
       "cycles": 456,
       "dma_busy": 224,
       "dma_utilization": 0.49122807017543857,
+      "dram_allocation_bytes": 6656,
       "dram_busy": 456,
       "dram_read_bytes": 7168,
       "dram_utilization": 1.0,
       "dram_write_bytes": 1536,
+      "instruction_count": 14,
+      "instruction_image_bytes": 3668,
       "latency_ns": 456.0,
       "offchip_bytes": 5632,
       "offchip_read_bytes": 4096,
@@ -109,7 +125,15 @@
       },
       "pim_busy": 232,
       "pim_local_read_bytes": 3072,
-      "pim_utilization": 0.5087719298245614
+      "pim_utilization": 0.5087719298245614,
+      "resource_idle_cycles": {
+        "compute": 456,
+        "dma": 232,
+        "dram": 0,
+        "pim": 224
+      },
+      "reused_allocation_bytes": 0,
+      "weight_image_bytes": 3072
     },
     "model": "demo_matmul.onnx",
     "model_dimensions": [
@@ -154,16 +178,20 @@
       "tile_n": 8
     },
     "metrics": {
+      "allocation_efficiency": 1.0,
       "bottleneck": "memory port",
       "compute_busy": 288,
       "compute_utilization": 0.25,
       "cycles": 1152,
       "dma_busy": 864,
       "dma_utilization": 0.75,
+      "dram_allocation_bytes": 6656,
       "dram_busy": 864,
       "dram_read_bytes": 12288,
       "dram_utilization": 0.75,
       "dram_write_bytes": 1536,
+      "instruction_count": 90,
+      "instruction_image_bytes": 23524,
       "latency_ns": 1152.0,
       "offchip_bytes": 13824,
       "offchip_read_bytes": 12288,
@@ -177,7 +205,15 @@
       },
       "pim_busy": 0,
       "pim_local_read_bytes": 0,
-      "pim_utilization": 0.0
+      "pim_utilization": 0.0,
+      "resource_idle_cycles": {
+        "compute": 864,
+        "dma": 288,
+        "dram": 288,
+        "pim": 1152
+      },
+      "reused_allocation_bytes": 0,
+      "weight_image_bytes": 3072
     },
     "model": "demo_matmul.onnx",
     "model_dimensions": [
@@ -222,16 +258,20 @@
       "tile_n": 16
     },
     "metrics": {
+      "allocation_efficiency": 0.7563451776649747,
       "bottleneck": "memory port",
       "compute_busy": 360,
       "compute_utilization": 0.30795551753635586,
       "cycles": 1169,
       "dma_busy": 809,
       "dma_utilization": 0.6920444824636441,
+      "dram_allocation_bytes": 9536,
       "dram_busy": 809,
       "dram_read_bytes": 13840,
       "dram_utilization": 0.6920444824636441,
       "dram_write_bytes": 6144,
+      "instruction_count": 44,
+      "instruction_image_bytes": 11520,
       "latency_ns": 1169.0,
       "offchip_bytes": 19984,
       "offchip_read_bytes": 13840,
@@ -265,7 +305,15 @@
       },
       "pim_busy": 0,
       "pim_local_read_bytes": 0,
-      "pim_utilization": 0.0
+      "pim_utilization": 0.0,
+      "resource_idle_cycles": {
+        "compute": 809,
+        "dma": 360,
+        "dram": 360,
+        "pim": 1169
+      },
+      "reused_allocation_bytes": 3072,
+      "weight_image_bytes": 4416
     },
     "model": "demo_mlp.onnx",
     "model_dimensions": [
@@ -310,16 +358,20 @@
       "tile_n": 16
     },
     "metrics": {
+      "allocation_efficiency": 0.9194630872483222,
       "bottleneck": "memory port",
       "compute_busy": 352,
       "compute_utilization": 0.3724867724867725,
       "cycles": 945,
       "dma_busy": 593,
       "dma_utilization": 0.6275132275132275,
+      "dram_allocation_bytes": 8768,
       "dram_busy": 593,
       "dram_read_bytes": 10768,
       "dram_utilization": 0.6275132275132275,
       "dram_write_bytes": 3072,
+      "instruction_count": 35,
+      "instruction_image_bytes": 9176,
       "latency_ns": 945.0,
       "offchip_bytes": 13840,
       "offchip_read_bytes": 10768,
@@ -343,7 +395,15 @@
       },
       "pim_busy": 0,
       "pim_local_read_bytes": 0,
-      "pim_utilization": 0.0
+      "pim_utilization": 0.0,
+      "resource_idle_cycles": {
+        "compute": 593,
+        "dma": 352,
+        "dram": 352,
+        "pim": 945
+      },
+      "reused_allocation_bytes": 768,
+      "weight_image_bytes": 4416
     },
     "model": "demo_mlp.onnx",
     "model_dimensions": [
@@ -388,16 +448,20 @@
       "tile_n": 16
     },
     "metrics": {
+      "allocation_efficiency": 0.9194630872483222,
       "bottleneck": "memory port",
       "compute_busy": 16,
       "compute_utilization": 0.020050125313283207,
       "cycles": 798,
       "dma_busy": 413,
       "dma_utilization": 0.5175438596491229,
+      "dram_allocation_bytes": 8768,
       "dram_busy": 782,
       "dram_read_bytes": 10768,
       "dram_utilization": 0.9799498746867168,
       "dram_write_bytes": 3072,
+      "instruction_count": 29,
+      "instruction_image_bytes": 7592,
       "latency_ns": 798.0,
       "offchip_bytes": 9616,
       "offchip_read_bytes": 6544,
@@ -421,7 +485,15 @@
       },
       "pim_busy": 369,
       "pim_local_read_bytes": 4224,
-      "pim_utilization": 0.462406015037594
+      "pim_utilization": 0.462406015037594,
+      "resource_idle_cycles": {
+        "compute": 782,
+        "dma": 385,
+        "dram": 16,
+        "pim": 429
+      },
+      "reused_allocation_bytes": 768,
+      "weight_image_bytes": 4416
     },
     "model": "demo_mlp.onnx",
     "model_dimensions": [

@@ -20,6 +20,10 @@ npuforge demo
 python examples/generate_models.py --output output/models
 npuforge compile output/models/demo_gemm.onnx --compare --output output/gemm
 python examples/compare_gemm_fusion.py
+npuforge inspect-program output/mlp_optimized
+npuforge run output/mlp_optimized --inputs output/mlp_optimized/inputs.npz --output output/replayed.npz
+npuforge verify output/models/demo_mlp.onnx --compiled output/mlp_optimized
+npuforge benchmark --compare-schedulers --output output/schedulers
 python -m build
 python - <<'PY'
 import json
@@ -40,3 +44,15 @@ for a, b in zip(actual, reference, strict=True):
     assert a['verification']['passed']
 print('LINUX VERIFIED: all four Gemm/Relu fusion metric sets match exactly.')
 PY
+
+python - <<'PYBACKEND'
+import json
+from pathlib import Path
+actual = json.loads(Path('output/schedulers/results.json').read_text())
+reference = json.loads(Path('benchmarks/backend_results.json').read_text())
+for a, b in zip(actual, reference, strict=True):
+    assert a['case'] == b['case']
+    assert a['metrics'] == b['metrics'], a['case']
+    assert a['verification']['passed']
+print('LINUX VERIFIED: all three scheduling/allocation metric sets match exactly.')
+PYBACKEND

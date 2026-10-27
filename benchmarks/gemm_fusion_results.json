@@ -18,16 +18,20 @@
       "tile_n": 16
     },
     "metrics": {
+      "allocation_efficiency": 1.0,
       "bottleneck": "memory port",
       "compute_busy": 308,
       "compute_utilization": 0.3893805309734513,
       "cycles": 791,
       "dma_busy": 483,
       "dma_utilization": 0.6106194690265486,
+      "dram_allocation_bytes": 8320,
       "dram_busy": 483,
       "dram_read_bytes": 8800,
       "dram_utilization": 0.6106194690265486,
       "dram_write_bytes": 3072,
+      "instruction_count": 25,
+      "instruction_image_bytes": 6560,
       "latency_ns": 791.0,
       "offchip_bytes": 11872,
       "offchip_read_bytes": 8800,
@@ -46,7 +50,15 @@
       },
       "pim_busy": 0,
       "pim_local_read_bytes": 0,
-      "pim_utilization": 0.0
+      "pim_utilization": 0.0,
+      "resource_idle_cycles": {
+        "compute": 483,
+        "dma": 308,
+        "dram": 308,
+        "pim": 791
+      },
+      "reused_allocation_bytes": 0,
+      "weight_image_bytes": 3200
     },
     "model": "demo_gemm_relu.onnx",
     "model_dimensions": [
@@ -91,16 +103,20 @@
       "tile_n": 16
     },
     "metrics": {
+      "allocation_efficiency": 1.0,
       "bottleneck": "memory port",
       "compute_busy": 304,
       "compute_utilization": 0.45037037037037037,
       "cycles": 675,
       "dma_busy": 371,
       "dma_utilization": 0.5496296296296296,
+      "dram_allocation_bytes": 6784,
       "dram_busy": 371,
       "dram_read_bytes": 7264,
       "dram_utilization": 0.5496296296296296,
       "dram_write_bytes": 1536,
+      "instruction_count": 20,
+      "instruction_image_bytes": 5252,
       "latency_ns": 675.0,
       "offchip_bytes": 8800,
       "offchip_read_bytes": 7264,
@@ -114,7 +130,15 @@
       },
       "pim_busy": 0,
       "pim_local_read_bytes": 0,
-      "pim_utilization": 0.0
+      "pim_utilization": 0.0,
+      "resource_idle_cycles": {
+        "compute": 371,
+        "dma": 304,
+        "dram": 304,
+        "pim": 675
+      },
+      "reused_allocation_bytes": 0,
+      "weight_image_bytes": 3200
     },
     "model": "demo_gemm_relu.onnx",
     "model_dimensions": [
@@ -159,16 +183,20 @@
       "tile_n": 16
     },
     "metrics": {
+      "allocation_efficiency": 1.0,
       "bottleneck": "memory port",
       "compute_busy": 28,
       "compute_utilization": 0.040756914119359534,
       "cycles": 687,
       "dma_busy": 355,
       "dma_utilization": 0.5167394468704513,
+      "dram_allocation_bytes": 8320,
       "dram_busy": 659,
       "dram_read_bytes": 8800,
       "dram_utilization": 0.9592430858806404,
       "dram_write_bytes": 3072,
+      "instruction_count": 21,
+      "instruction_image_bytes": 5504,
       "latency_ns": 687.0,
       "offchip_bytes": 8800,
       "offchip_read_bytes": 5728,
@@ -187,7 +215,15 @@
       },
       "pim_busy": 304,
       "pim_local_read_bytes": 3072,
-      "pim_utilization": 0.44250363901018924
+      "pim_utilization": 0.44250363901018924,
+      "resource_idle_cycles": {
+        "compute": 659,
+        "dma": 332,
+        "dram": 28,
+        "pim": 383
+      },
+      "reused_allocation_bytes": 0,
+      "weight_image_bytes": 3200
     },
     "model": "demo_gemm_relu.onnx",
     "model_dimensions": [
@@ -232,16 +268,20 @@
       "tile_n": 16
     },
     "metrics": {
+      "allocation_efficiency": 1.0,
       "bottleneck": "memory port",
       "compute_busy": 0,
       "compute_utilization": 0.0,
       "cycles": 571,
       "dma_busy": 243,
       "dma_utilization": 0.425569176882662,
+      "dram_allocation_bytes": 6784,
       "dram_busy": 571,
       "dram_read_bytes": 7264,
       "dram_utilization": 1.0,
       "dram_write_bytes": 1536,
+      "instruction_count": 16,
+      "instruction_image_bytes": 4196,
       "latency_ns": 571.0,
       "offchip_bytes": 5728,
       "offchip_read_bytes": 4192,
@@ -255,7 +295,15 @@
       },
       "pim_busy": 328,
       "pim_local_read_bytes": 3072,
-      "pim_utilization": 0.574430823117338
+      "pim_utilization": 0.574430823117338,
+      "resource_idle_cycles": {
+        "compute": 571,
+        "dma": 328,
+        "dram": 0,
+        "pim": 243
+      },
+      "reused_allocation_bytes": 0,
+      "weight_image_bytes": 3200
     },
     "model": "demo_gemm_relu.onnx",
     "model_dimensions": [

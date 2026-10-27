@@ -1,22 +1,25 @@
 # Validation
 
-The current suite has **182 Python tests** and a native C++ test executable.
+The v0.4 suite has **245 Python tests** and two native CTest suites.
 The [GitHub Actions workflow](https://github.com/guhanp09/npuforge/actions/workflows/ci.yml)
-builds the package and runs formatting checks, tests, examples and packaging on
-Ubuntu and macOS. Hosted checks passed on both platforms on 27 October 2026;
-the workflow page contains the current run status and downloadable reports.
+builds the package and runs formatting, tests, standalone binary execution, examples
+and packaging on Ubuntu and macOS. Hosted checks passed for the published v0.3
+release on 27 October 2026. The v0.4 backend has not been pushed; its evidence below
+comes from local macOS builds and Linux Docker runs, not hosted CI.
 
 ## Tested configurations
 
 | Platform | Python | Checks |
 | :--- | :--- | :--- |
-| macOS arm64 | 3.12 | 182 tests, native CTest, Ruff, clang-format, examples, source/wheel builds |
-| macOS arm64 | 3.11 | Package installation, 182 tests and example comparisons |
-| Linux x86_64, Debian Bookworm container | 3.12 | Clean installation, 182 tests, native CTest, formatting, examples and packaging |
+| macOS arm64 | 3.12 | 245 tests, both native CTests, Ruff, clang-format, examples, source/wheel builds |
+| macOS arm64 | 3.11 | Package installation, 245 tests and dependency checks |
+| Linux x86_64, Debian Bookworm container | 3.12 | Clean installation, 245 tests, both native CTests, formatting, examples and packaging |
 
-A production wheel was also installed and exercised outside the source directory.
+The v0.4 wheel was installed in a separate environment and exercised outside the
+source directory with only the five compiled files and input NPZ. No ONNX model
+was present; output arrays exactly matched the compiler run.
 Dependency checks passed. The native tests passed in a Debug build with
-AddressSanitizer and UndefinedBehaviorSanitizer.
+AddressSanitizer and UndefinedBehaviorSanitizer after the final interpreter fix.
 
 ## Coverage
 
@@ -28,14 +31,24 @@ AddressSanitizer and UndefinedBehaviorSanitizer.
 - Gemm defaults, finite coefficients, optional C, transpose flags and final-tile activation.
 - Native dependency scheduling, compute/DMA overlap, resource contention, allocation
   lifetimes, working-set bounds, invalid frees and allocation deadlock.
+- Binary header, opcodes, lengths, reserved fields, endianness, version, integer
+  boundaries, dependency cycles, deterministic round trips and artifact checksums.
+- Aligned DRAM lifetimes/reuse, SRAM partition/address consistency, capacity limits,
+  uninitialized/stale reads, DMA readiness, staged operand provenance and incomplete
+  reductions. Modified images are tested through the C++ interpreter.
+- Exact public-output contract verification, including rejection of missing outputs.
+- Standalone loading with the original ONNX file deleted, changed runtime inputs,
+  output aliases, constrained 128-byte scratchpads, random graphs and a 256-op chain.
 - CLI errors, report metrics, HTML escaping, SVG structure and repeatable benchmark output.
 
-NumPy outputs are compared with ONNX Runtime CPU using `rtol=1e-4, atol=1e-5`.
+Decoded native outputs are compared with ONNX Runtime CPU using `rtol=1e-4, atol=1e-5`.
 Tests use fixed random seeds. Non-finite initializers and outputs are rejected.
 
 The C++ tests use hand-calculated cases for single transfers and computations,
 sequential dependencies, independent resource overlap, compute contention and the
-shared PIM/DMA memory port. Python integration tests check Gemm timing with a
+shared PIM/DMA memory port. The binary suite independently hand-encodes scalar
+conventional/PIM programs, checks actual 2×3=6 output, and rejects malformed images
+and illegal allocations. Python integration tests check Gemm timing with a
 `(2,3) @ (3,4)` workload, alpha=2, beta=-1 and vector bias:
 
 | Configuration | Conventional cycles | PIM cycles |
@@ -58,10 +71,12 @@ docker run --rm --platform linux/amd64 --cpus=2 --memory=2g \
   python:3.12-slim-bookworm sh /source/scripts/validate_linux.sh
 ```
 
-The script copies the source into the container, installs the package, runs the
-checks and compares all ten native metric dictionaries with the reference JSON in
+The x86_64 container was run under Docker on Apple Silicon. The script copies the
+source into the container, installs the package, runs the
+checks and compares all thirteen native metric dictionaries with the reference JSON in
 `benchmarks/`. The macOS and Linux results matched exactly for those workloads.
-FP32 verification error values can differ slightly across BLAS implementations.
+This covers the original six cases, four fusion cases and three allocation/schedule
+cases. FP32 verification errors may vary slightly with floating-point evaluation order.
 
 Source archives are checked for required source/test files and exclude bytecode,
 virtual environments, generated reports and native build output. The timing model's

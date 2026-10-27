@@ -1,10 +1,11 @@
 # Compiler and abstract hardware model
 
 NPUForge compiles actual ONNX into its own typed tensor graph, rewrites that graph,
-and lowers it to an explicit instruction DAG. The **C++ engine is a performance
-simulator**, not a tensor arithmetic engine. Independent NumPy execution implements
-FP32 graph semantics; ONNX Runtime supplies the differential reference. Tests also
-reconstruct numerical outputs from lowered tile instructions to check mapping.
+and lowers it to an addressed instruction DAG and binary program. The C++ engine
+decodes and executes FP32 tensor instructions, sharing the existing native resource
+scheduler for timing. ONNX Runtime supplies an independent numerical reference.
+The NumPy graph executor remains a separate unit-test reference. See the
+[backend pipeline](compiler_backend.md) for artifact loading and execution.
 
 ## Supported input contract
 
@@ -81,7 +82,7 @@ For `q` inputs and `e` output elements, SRAM is `4*(q+1)*e`. Broadcasting expand
 locally; transfer counts use unique source positions within each chunk. No reuse
 between chunks or across repeated operands is assumed. Gather/scatter and broadcast
 address generation carry no extra penalty beyond DMA setup and transferred bytes.
-DRAM capacity is assumed sufficient; only scratchpad capacity is constrained.
+Both concrete address spaces are bounded; see [memory planning](memory_planning.md).
 
 ## Instruction contract
 
@@ -106,8 +107,8 @@ register-only work. The compiler never does so. Native checks reject invalid
 IDs/dependencies, cycles, unsupported opcodes, capacity overflow, unallocated uses,
 oversized transfer/working sets, free during active use, double allocation,
 unreleased buffers and SRAM allocation deadlock. Counts/cycle addition are checked
-for overflow. The compiler, rather than the scheduler, defines tile address and
-accumulation semantics; differential lowering tests check that boundary.
+for overflow. The binary interpreter validates and executes the compiler-assigned addresses and
+accumulation semantics; differential tests verify actual loaded-program outputs.
 
 ## Deterministic event scheduling
 
@@ -244,9 +245,10 @@ fusion speedup guarantee. The original six benchmark configurations are unchange
   serialized mapping and dependencies may also dominate. PIM occupies both its
   arithmetic engine and the DRAM port, so this label is deliberately conservative.
 
-NumPy functional results use `rtol=1e-4, atol=1e-5` against ONNX Runtime CPU. Seeds are
+Compiled native outputs use `rtol=1e-4, atol=1e-5` against ONNX Runtime CPU. Seeds are
 recorded; non-finite outputs fail verification. This tolerance permits ordinary FP32
-BLAS/FMA ordering differences. The performance engine models counts and schedules,
-not arithmetic rounding, physical banks, caches, pipelines, power or host overhead.
+BLAS/FMA ordering differences. The interpreter performs FP32 arithmetic; the timing abstraction models counts
+and resources, excluding physical banks, caches, detailed pipelines, power and host
+overhead. Input/weight loading before cycle zero is excluded from simulated latency.
 No simulated latency should be presented as measured host inference time, silicon
 latency, or universal cycle accuracy.

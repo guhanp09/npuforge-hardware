@@ -118,10 +118,83 @@ def comparison_rows(runs: list[tuple[str, Run]]) -> str:
             f"<tr><td>{esc(label)}</td><td>{m['cycles']:,}</td>"
             f"<td>{m['latency_ns']:,.1f}</td><td>{m['offchip_bytes']:,}</td>"
             f"<td>{m['pim_local_read_bytes']:,}</td><td>{m['peak_sram_bytes']:,}</td>"
+            f"<td>{m['dram_allocation_bytes']:,}</td>"
             f"<td>{m['compute_utilization']:.1%}</td>"
             f"<td>{m['dma_utilization']:.1%}</td><td>{m['pim_utilization']:.1%}</td></tr>"
         )
     return "".join(rows)
+
+
+def memory_svg(run: Run) -> str:
+    memory = run.compiled.memory
+    arenas = memory["scratchpad"]
+    peak = max([1, *[a["address"] + a["size"] for a in arenas]])
+    cycles = max(1, run.metrics["cycles"])
+    parts = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 240" '
+        'role="img" aria-label="SRAM addresses and allocation lifetimes">',
+        '<rect x="100" y="35" width="865" height="145" fill="#f0f3f8"/>',
+    ]
+    for a in arenas[:1000]:
+        x = 100 + 865 * a["start_cycle"] / cycles
+        w = 865 * (a["end_cycle"] - a["start_cycle"]) / cycles
+        y = 180 - 145 * (a["address"] + a["size"]) / peak
+        h = 145 * a["size"] / peak
+        parts.append(
+            f'<rect x="{x:.2f}" y="{y:.2f}" width="{w:.2f}" height="{h:.2f}" '
+            'fill="#238da4" opacity=".7" stroke="white"><title>'
+            f"buffer {a['buffer']}: {a['address']}–{a['address'] + a['size']} B; "
+            f"{a['start_cycle']}–{a['end_cycle']} cycles</title></rect>"
+        )
+    for value, y in [(peak, 35), (0, 180)]:
+        parts.append(
+            f'<text x="90" y="{y + 4}" text-anchor="end" font-size="12" '
+            f'fill="#56647b">{value:,} B</text>'
+        )
+    for tick in range(5):
+        parts.append(
+            f'<text x="{100 + 865 * tick / 4}" y="205" text-anchor="middle" '
+            f'font-size="12" fill="#56647b">{cycles * tick / 4:,.0f}</text>'
+        )
+    parts.append(
+        '<text x="530" y="230" text-anchor="middle" font-size="12" '
+        'fill="#56647b">Simulated cycles · SRAM allocation lifetime</text></svg>'
+    )
+    return "".join(parts)
+
+
+def binary_section(run: Run) -> str:
+    if run.compiled is None:
+        return ""
+    image, m = run.compiled, run.metrics
+    rows = "".join(
+        f"<tr><td>{esc(t['id'])}</td><td>{esc('/'.join(t['roles']))}</td>"
+        f"<td>0x{t['address']:x}</td><td>{t['size']:,}</td>"
+        f"<td>{t['first']}–{t['last']}</td><td>{esc(t['reused_from'] or '—')}</td></tr>"
+        for t in image.memory["tensors"]
+    )
+    files = "".join(
+        f"<tr><td>{esc(name)}</td><td>{meta['size']:,} B</td>"
+        f"<td><code>{meta['sha256'][:16]}…</code></td></tr>"
+        for name, meta in image.manifest["images"].items()
+    )
+    return f"""<h3>Compiled program</h3>
+<p>Schedule: {esc(image.schedule["strategy"])} · FP32 · little-endian ·
+binary format v1 · 256-byte records · entry point 0.</p>
+<p>Outputs were obtained by loading the binary files and executing addressed
+instructions in C++. DRAM allocation: {m["dram_allocation_bytes"]:,} B;
+reused allocation requests: {m["reused_allocation_bytes"]:,} B;
+allocated / no-reuse footprint: {m["allocation_efficiency"]:.1%}.</p>
+<div class="scroll"><table><thead><tr><th>Image</th><th>Size</th><th>SHA-256 prefix</th>
+</tr></thead><tbody>{files}</tbody></table></div>
+<h3>SRAM allocation lifetimes</h3>{memory_svg(run)}
+<p>Vertical positions are byte offsets. The plot uses the occupied address range;
+configured capacity is {image.memory["sram_bytes"]:,} B. At most 1,000 buffers are drawn.</p>
+<details><summary>DRAM memory map (64-byte alignment)</summary><div class="scroll"><table>
+<thead><tr><th>Tensor</th><th>Role</th><th>Address</th><th>Size (B)</th>
+<th>Operator lifetime</th><th>Reused from</th></tr></thead><tbody>{rows}</tbody></table>
+</div><p>Lifetimes include the complete consuming operator and its transfers.</p></details>
+<details><summary>Imported graph before optimization</summary>{graph_svg(run.original)}</details>"""
 
 
 def render_report(runs: list[tuple[str, Run]], path: str | Path) -> Path:
@@ -175,7 +248,7 @@ also limit overlap.</p>
 <details><summary>Per-operation timing (cycles)</summary><table>
 <thead><tr><th>Operation</th><th>Start</th><th>End</th><th>Sum of busy durations</th></tr></thead>
 <tbody>{timing}</tbody></table><p>Overlapping durations may sum above elapsed time.
-Total latency is the native scheduler's makespan.</p></details></section>""")
+Total latency is the native scheduler's makespan.</p></details>{binary_section(run)}</section>""")
     document = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>NPUForge · Compiler &amp; architecture report</title><style>
@@ -216,7 +289,8 @@ the generated instruction streams.</p>
 <p>Identical deterministic inputs and weights. Latency is simulated accelerator time,
 not measured host runtime. All configurations and regressions are included.</p>
 <div class="scroll"><table><thead><tr><th>Case</th><th>Cycles</th><th>Latency (ns)</th>
-<th>Off-chip (B)</th><th>PIM-local (B)</th><th>Peak SRAM (B)</th><th>Compute</th>
+<th>Off-chip (B)</th><th>PIM-local (B)</th><th>Peak SRAM (B)</th>
+<th>DRAM allocation (B)</th><th>Compute</th>
 <th>DMA</th><th>PIM</th></tr></thead><tbody>{comparison_rows(runs)}</tbody></table></div>
 <h3>What differs in PIM mode?</h3><p>Weights remain in a hypothetical memory-local compute
 array. Activation tiles enter SRAM and output tiles leave through DMA. Each PIM matrix

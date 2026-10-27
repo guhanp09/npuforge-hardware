@@ -1,0 +1,233 @@
+[
+  {
+    "architecture": "conventional",
+    "case": "baseline",
+    "metrics": {
+      "allocation_efficiency": 0.9880952380952381,
+      "bottleneck": "memory port",
+      "compute_busy": 256,
+      "compute_utilization": 0.2302158273381295,
+      "cycles": 1112,
+      "dma_busy": 856,
+      "dma_utilization": 0.7697841726618705,
+      "dram_allocation_bytes": 10624,
+      "dram_busy": 856,
+      "dram_read_bytes": 12288,
+      "dram_utilization": 0.7697841726618705,
+      "dram_write_bytes": 4352,
+      "instruction_count": 78,
+      "instruction_image_bytes": 20404,
+      "latency_ns": 1112.0,
+      "offchip_bytes": 16640,
+      "offchip_read_bytes": 12288,
+      "peak_sram_bytes": 1280,
+      "per_operation": {
+        "op0_a": {
+          "busy_cycles": 336,
+          "end": 336,
+          "start": 0
+        },
+        "op1_b": {
+          "busy_cycles": 336,
+          "end": 672,
+          "start": 336
+        },
+        "op2_ya": {
+          "busy_cycles": 220,
+          "end": 892,
+          "start": 672
+        },
+        "op3_yb": {
+          "busy_cycles": 220,
+          "end": 1112,
+          "start": 892
+        }
+      },
+      "pim_busy": 0,
+      "pim_local_read_bytes": 0,
+      "pim_utilization": 0.0,
+      "resource_idle_cycles": {
+        "compute": 856,
+        "dma": 256,
+        "dram": 256,
+        "pim": 1112
+      },
+      "reused_allocation_bytes": 128,
+      "weight_image_bytes": 6144
+    },
+    "model": "branches.onnx",
+    "reuse": true,
+    "scheduler": "baseline",
+    "transformations": {
+      "dead_operations_removed": 0,
+      "enabled": true,
+      "final_operations": 4,
+      "fusion_patterns": 0,
+      "original_operations": 4
+    },
+    "verification": {
+      "atol": 1e-05,
+      "max_absolute_error": {
+        "ya": 0.0,
+        "yb": 0.0
+      },
+      "passed": true,
+      "rtol": 0.0001,
+      "seed": 7
+    }
+  },
+  {
+    "architecture": "conventional",
+    "case": "memory_aware",
+    "metrics": {
+      "allocation_efficiency": 0.8095238095238095,
+      "bottleneck": "memory port",
+      "compute_busy": 256,
+      "compute_utilization": 0.2302158273381295,
+      "cycles": 1112,
+      "dma_busy": 856,
+      "dma_utilization": 0.7697841726618705,
+      "dram_allocation_bytes": 8704,
+      "dram_busy": 856,
+      "dram_read_bytes": 12288,
+      "dram_utilization": 0.7697841726618705,
+      "dram_write_bytes": 4352,
+      "instruction_count": 78,
+      "instruction_image_bytes": 20404,
+      "latency_ns": 1112.0,
+      "offchip_bytes": 16640,
+      "offchip_read_bytes": 12288,
+      "peak_sram_bytes": 1280,
+      "per_operation": {
+        "op0_a": {
+          "busy_cycles": 336,
+          "end": 336,
+          "start": 0
+        },
+        "op1_b": {
+          "busy_cycles": 336,
+          "end": 892,
+          "start": 556
+        },
+        "op2_ya": {
+          "busy_cycles": 220,
+          "end": 556,
+          "start": 336
+        },
+        "op3_yb": {
+          "busy_cycles": 220,
+          "end": 1112,
+          "start": 892
+        }
+      },
+      "pim_busy": 0,
+      "pim_local_read_bytes": 0,
+      "pim_utilization": 0.0,
+      "resource_idle_cycles": {
+        "compute": 856,
+        "dma": 256,
+        "dram": 256,
+        "pim": 1112
+      },
+      "reused_allocation_bytes": 2048,
+      "weight_image_bytes": 6144
+    },
+    "model": "branches.onnx",
+    "reuse": true,
+    "scheduler": "memory-aware",
+    "transformations": {
+      "dead_operations_removed": 0,
+      "enabled": true,
+      "final_operations": 4,
+      "fusion_patterns": 0,
+      "original_operations": 4
+    },
+    "verification": {
+      "atol": 1e-05,
+      "max_absolute_error": {
+        "ya": 0.0,
+        "yb": 0.0
+      },
+      "passed": true,
+      "rtol": 0.0001,
+      "seed": 7
+    }
+  },
+  {
+    "architecture": "conventional",
+    "case": "memory_aware_no_reuse",
+    "metrics": {
+      "allocation_efficiency": 1.0,
+      "bottleneck": "memory port",
+      "compute_busy": 256,
+      "compute_utilization": 0.2302158273381295,
+      "cycles": 1112,
+      "dma_busy": 856,
+      "dma_utilization": 0.7697841726618705,
+      "dram_allocation_bytes": 10752,
+      "dram_busy": 856,
+      "dram_read_bytes": 12288,
+      "dram_utilization": 0.7697841726618705,
+      "dram_write_bytes": 4352,
+      "instruction_count": 78,
+      "instruction_image_bytes": 20404,
+      "latency_ns": 1112.0,
+      "offchip_bytes": 16640,
+      "offchip_read_bytes": 12288,
+      "peak_sram_bytes": 1280,
+      "per_operation": {
+        "op0_a": {
+          "busy_cycles": 336,
+          "end": 336,
+          "start": 0
+        },
+        "op1_b": {
+          "busy_cycles": 336,
+          "end": 892,
+          "start": 556
+        },
+        "op2_ya": {
+          "busy_cycles": 220,
+          "end": 556,
+          "start": 336
+        },
+        "op3_yb": {
+          "busy_cycles": 220,
+          "end": 1112,
+          "start": 892
+        }
+      },
+      "pim_busy": 0,
+      "pim_local_read_bytes": 0,
+      "pim_utilization": 0.0,
+      "resource_idle_cycles": {
+        "compute": 856,
+        "dma": 256,
+        "dram": 256,
+        "pim": 1112
+      },
+      "reused_allocation_bytes": 0,
+      "weight_image_bytes": 6144
+    },
+    "model": "branches.onnx",
+    "reuse": false,
+    "scheduler": "memory-aware",
+    "transformations": {
+      "dead_operations_removed": 0,
+      "enabled": true,
+      "final_operations": 4,
+      "fusion_patterns": 0,
+      "original_operations": 4
+    },
+    "verification": {
+      "atol": 1e-05,
+      "max_absolute_error": {
+        "ya": 0.0,
+        "yb": 0.0
+      },
+      "passed": true,
+      "rtol": 0.0001,
+      "seed": 7
+    }
+  }
+]

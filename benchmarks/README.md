@@ -1,7 +1,7 @@
 # Reproducible experiments
 
 Run `npuforge benchmark --output output/benchmarks` after installing the package.
-It compiles every case, invokes the C++ engine, verifies NumPy outputs against ONNX
+It compiles every case, invokes the C++ engine, verifies compiled native outputs against ONNX
 Runtime, writes full IR/instruction/trace artifacts, and generates JSON, Markdown
 and an HTML report. `python scripts/refresh_artifacts.py` refreshes the checked-in
 reference tables and SVG figures from these same executions.
@@ -35,3 +35,23 @@ It uses the same seeds and default hardware as the original benchmark set.
 results. `python scripts/refresh_artifacts.py` regenerates both benchmark sets and
 reports. Linux validation independently compares all four additional native metric
 dictionaries with this reference. The original six benchmark results remain intact.
+
+## Allocation and scheduling comparison
+
+Run `npuforge benchmark --compare-schedulers --output output/schedulers`.
+The generated model has two independent `(8,8) @ (8,64) @ (64,4)` branches.
+All cases use identical weights, inputs, optimization and hardware. Baseline keeps
+stable graph order; memory-aware completes a branch earlier. The third case disables
+DRAM reuse. `backend_results.json` and `backend_results.md` record the actual runs.
+
+| Strategy | Simulated cycles | DRAM allocation (B) |
+| :--- | ---: | ---: |
+| Baseline with reuse | 1,112 | 10,624 |
+| Memory-aware with reuse | 1,112 | 8,704 |
+| Memory-aware without reuse | 1,112 | 10,752 |
+
+Memory-aware order lowers the baseline footprint by 18.1%; reuse lowers its own
+no-reuse footprint by 19.0%. Transfers and cycles are unchanged. These results show
+allocation savings, not a scheduling latency improvement. `allocation_efficiency`
+is allocated bytes / the aligned no-reuse footprint (lower is better). Reused bytes
+sum allocation requests served from holes; they are not a peak-live-byte measure.

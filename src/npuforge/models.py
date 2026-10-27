@@ -10,8 +10,8 @@ from onnx import TensorProto, helper, numpy_helper
 def generate_model(
     path: str | Path, kind: str = "mlp", m: int = 16, k: int = 32, n: int = 24, seed: int = 11
 ) -> Path:
-    if kind not in {"matmul", "mlp", "gemm", "gemm_relu"} or min(m, k, n) <= 0:
-        raise ValueError("model must be matmul, mlp, gemm or gemm_relu with positive dimensions")
+    if kind not in {"matmul", "mlp", "gemm", "gemm_relu", "branches"} or min(m, k, n) <= 0:
+        raise ValueError("unknown model kind or nonpositive dimensions")
     rng = np.random.default_rng(seed)
     weights = [numpy_helper.from_array((rng.normal(size=(k, n)) * 0.2).astype(np.float32), "w1")]
     nodes = [helper.make_node("MatMul", ["x", "w1"], ["mm1"], name="linear1")]
@@ -46,11 +46,30 @@ def generate_model(
             ]
         )
         out, out_shape = "y", [m, p]
+    outputs = [helper.make_tensor_value_info(out, TensorProto.FLOAT, out_shape)]
+    if kind == "branches":
+        p = max(1, n // 16)
+        weights = [
+            numpy_helper.from_array((rng.normal(size=shape) * 0.2).astype(np.float32), name)
+            for name, shape in [("wa", (k, n)), ("wb", (k, n)), ("ra", (n, p)), ("rb", (n, p))]
+        ]
+        nodes = [
+            helper.make_node("MatMul", inputs, [output], name=output)
+            for inputs, output in [
+                (["x", "wa"], "a"),
+                (["x", "wb"], "b"),
+                (["a", "ra"], "ya"),
+                (["b", "rb"], "yb"),
+            ]
+        ]
+        outputs = [
+            helper.make_tensor_value_info(name, TensorProto.FLOAT, [m, p]) for name in ("ya", "yb")
+        ]
     graph = helper.make_graph(
         nodes,
         f"demo_{kind}",
         [helper.make_tensor_value_info("x", TensorProto.FLOAT, [m, k])],
-        [helper.make_tensor_value_info(out, TensorProto.FLOAT, out_shape)],
+        outputs,
         weights,
     )
     model = helper.make_model(graph, opset_imports=[helper.make_opsetid("", 18)])

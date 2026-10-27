@@ -115,7 +115,7 @@ class Program:
         return json.dumps(self.to_dict(), sort_keys=True, indent=2) + "\n"
 
 
-def lower(graph: Graph, hardware: Hardware | None = None) -> Program:
+def lower(graph: Graph, hardware: Hardware | None = None, *, operation_order=None) -> Program:
     graph.validate()
     h = hardware or Hardware()
     instructions: list[dict] = []
@@ -131,7 +131,18 @@ def lower(graph: Graph, hardware: Hardware | None = None) -> Program:
         )
         return iid
 
-    for node in graph.ordered():
+    order = graph.ordered() if operation_order is None else operation_order
+    available = set(graph.inputs) | {k for k, t in graph.tensors.items() if t.data is not None}
+    if {o.id for o in order} != {o.id for o in graph.operations} or len(order) != len(
+        graph.operations
+    ):
+        raise ValueError("operator schedule must contain every operation exactly once")
+    for node in order:
+        if node != next(o for o in graph.operations if o.id == node.id):
+            raise ValueError("operator schedule changed an operation")
+        if not set(node.inputs) <= available:
+            raise ValueError("operator schedule violates a tensor dependency")
+        available.add(node.output)
         node_deps = [i for tid in node.inputs for i in produced.get(tid, [])]
         stores = []
         common = {"node": node.id, "inputs": node.inputs, "output": node.output}
@@ -174,6 +185,7 @@ def lower(graph: Graph, hardware: Hardware | None = None) -> Program:
                             previous,
                             bytes=4 * a * c,
                             tensor=node.inputs[0],
+                            operand=0,
                             source_ranges=a_source,
                             transpose=bool(gemm and gemm["transA"]),
                             ranges=ranges,
@@ -186,6 +198,7 @@ def lower(graph: Graph, hardware: Hardware | None = None) -> Program:
                                 previous,
                                 bytes=4 * b * c,
                                 tensor=node.inputs[1],
+                                operand=1,
                                 source_ranges=b_source,
                                 transpose=bool(gemm and gemm["transB"]),
                                 ranges=ranges,
@@ -206,6 +219,7 @@ def lower(graph: Graph, hardware: Hardware | None = None) -> Program:
                                     previous,
                                     bytes=bias_bytes,
                                     tensor=node.inputs[2],
+                                    operand=2,
                                     ranges=ranges,
                                     **common,
                                 )
@@ -280,10 +294,11 @@ def lower(graph: Graph, hardware: Hardware | None = None) -> Program:
                         [alloc],
                         bytes=broadcast_bytes(graph.tensors[tid], shape, start, stop),
                         tensor=tid,
+                        operand=slot,
                         flat_range=[start, stop],
                         **common,
                     )
-                    for tid in node.inputs
+                    for slot, tid in enumerate(node.inputs)
                 ]
                 compute = emit(
                     "ADD" if node.op == "Add" else "RELU",
@@ -312,10 +327,14 @@ def simulate(program: Program) -> dict:
     from . import _native
 
     result = _native.simulate(program.instructions, asdict(program.hardware))
+    return operation_timings(result, program.instructions)
+
+
+def operation_timings(result: dict, instructions: list[dict]) -> dict:
     # Busy times sum instruction durations; elapsed time is the scheduler makespan.
     timing = {}
     for event in result["trace"]:
-        node = program.instructions[event["id"]].get("node", "unknown")
+        node = instructions[event["id"]].get("node", "unknown")
         if node not in timing:
             timing[node] = {"start": event["start"], "end": event["end"], "busy_cycles": 0}
         timing[node]["start"] = min(timing[node]["start"], event["start"])

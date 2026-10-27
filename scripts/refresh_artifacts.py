@@ -5,7 +5,7 @@ import json
 import platform
 from pathlib import Path
 
-from npuforge.benchmark import run_benchmarks, run_fusion_benchmarks
+from npuforge.benchmark import run_backend_benchmarks, run_benchmarks, run_fusion_benchmarks
 from npuforge.reports import graph_svg, render_report, timeline_svg
 
 root = Path(__file__).resolve().parents[1]
@@ -23,6 +23,11 @@ fusion_runs = run_fusion_benchmarks(fusion_dir)
 render_report(fusion_runs, fusion_dir / "report.html")
 for name in ("results.json", "results.md"):
     (root / "benchmarks" / f"gemm_fusion_{name}").write_bytes((fusion_dir / name).read_bytes())
+backend_dir = root / "output" / "schedulers"
+backend_runs = run_backend_benchmarks(backend_dir)
+render_report(backend_runs, backend_dir / "report.html")
+for name in ("results.json", "results.md"):
+    (root / "benchmarks" / f"backend_{name}").write_bytes((backend_dir / name).read_bytes())
 packages = {}
 for name in (
     "npuforge",

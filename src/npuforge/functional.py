@@ -55,14 +55,23 @@ def execute(graph: Graph, inputs: dict[str, np.ndarray]) -> dict[str, np.ndarray
 def verify(path: str | Path, graph: Graph, seed: int = 7) -> dict:
     inputs = make_inputs(graph, seed)
     actual = execute(graph, inputs)
+    return verify_outputs(path, inputs, actual, seed)
+
+
+def verify_outputs(
+    path: str | Path, inputs: dict[str, np.ndarray], actual: dict[str, np.ndarray], seed: int = 7
+) -> dict:
     try:
         session = ort.InferenceSession(str(path), providers=["CPUExecutionProvider"])
-        expected = session.run(graph.outputs, inputs)
+        names = [output.name for output in session.get_outputs()]
+        if set(actual) != set(names):
+            raise ValueError("compiled outputs must exactly match the model's declared outputs")
+        expected = session.run(names, inputs)
     except Exception as exc:
         # ORT's native exception classes do not share a public Python base class.
         raise ValueError(f"ONNX Runtime reference could not load or execute model: {exc}") from exc
     errors = {}
-    for tid, reference in zip(graph.outputs, expected, strict=True):
+    for tid, reference in zip(names, expected, strict=True):
         if not np.all(np.isfinite(actual[tid])) or not np.all(np.isfinite(reference)):
             raise ValueError(f"{tid}: non-finite output; check input range and weights")
         np.testing.assert_allclose(actual[tid], reference, rtol=RTOL, atol=ATOL, equal_nan=False)

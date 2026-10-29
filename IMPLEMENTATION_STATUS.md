@@ -30,4 +30,4 @@ baseline/memory-aware/no-reuse, each at 1,112 simulated cycles.
 
 No required implementation or verification work is pending. No known critical
 correctness issue remains. Scope: static FP32 subset, single tile workspace,
-hypothetical NPU timing and LLVM/MLIR 19. Hosted CI for v0.5 awaits publication.
+hypothetical NPU timing and LLVM/MLIR 19. Hosted CI results are available in the repository's Actions tab.

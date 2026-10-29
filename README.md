@@ -1,4 +1,4 @@
-# NPUForge
+# NPUForge Hardware
 
 **A hardware-aware ONNX compiler with executable NPU binary images.** Import static
 FP32 models, optimize a typed graph, allocate DRAM/SRAM addresses, schedule and encode
@@ -11,6 +11,17 @@ executes addressed FP32 arithmetic and schedules compute, DMA and PIM resources.
 ONNX Runtime independently checks the resulting tensors. Saved programs run without
 the original ONNX model. No accelerator, account or downloaded model is required.
 
+## Relationship to the original project
+
+This repository develops the hardware-aware compiler backend and MLIR/LLVM path
+on top of [NPUForge, the original ONNX compiler and timing simulator](https://github.com/guhanp09/npuforge).
+The original repository retains the graph compiler, tiler and performance simulator;
+this repository adds concrete lifetime allocation, executable instruction/weight
+images, native binary arithmetic and the registered MLIR compiler path.
+
+The Python package and CLI retain the name `npuforge`. Use a separate virtual
+environment for each repository.
+
 ## Quick start
 
 Prerequisites: Python **3.11+** and a C++17 compiler. On macOS, install Apple's
@@ -19,8 +30,8 @@ Command Line Tools (`xcode-select --install`) if needed. On Ubuntu, install
 in pip's isolated native build.
 
 ```bash
-git clone https://github.com/guhanp09/npuforge.git
-cd npuforge
+git clone https://github.com/guhanp09/npuforge-hardware.git
+cd npuforge-hardware
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
@@ -234,11 +245,11 @@ single compute/transfer, dependency serialization, independent overlap, resource
 contention, PIM/DRAM sharing, allocation lifetime, deadlock and repeatability.
 
 The GitHub Actions workflow covers builds, formatting, Python/native tests, binary
-execution, examples and packaging on macOS and Linux. See [validation evidence](docs/validation.md) for what was actually
-executed locally. The MIT-licensed source is published at
-[guhanp09/npuforge](https://github.com/guhanp09/npuforge). Published v0.3 checks are available in
-[GitHub Actions](https://github.com/guhanp09/npuforge/actions); the v0.4 backend and v0.5 MLIR extension have
-local validation and await publication.
+execution, examples and packaging on macOS and Linux, plus a separate MLIR build.
+See [validation evidence](docs/validation.md) for locally executed checks and
+[GitHub Actions](https://github.com/guhanp09/npuforge-hardware/actions) for hosted
+results and downloadable reports. The MIT-licensed source is published at
+[guhanp09/npuforge-hardware](https://github.com/guhanp09/npuforge-hardware).
 
 The tested dependency snapshot is available in `requirements-tested.txt` for Python
 3.12. To repeat Linux validation locally with Docker (source mounted read-only):

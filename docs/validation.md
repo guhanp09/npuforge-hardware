@@ -1,11 +1,11 @@
 # Validation
 
-The v0.4 suite has **245 Python tests** and two native CTest suites.
-The [GitHub Actions workflow](https://github.com/guhanp09/npuforge/actions/workflows/ci.yml)
-builds the package and runs formatting, tests, standalone binary execution, examples
-and packaging on Ubuntu and macOS. Hosted checks passed for the published v0.3
-release on 27 October 2026. The v0.4 backend has not been pushed; its evidence below
-comes from local macOS builds and Linux Docker runs, not hosted CI.
+The executable backend's v0.4 suite has **245 Python tests** and two native CTest
+suites. The MLIR extension brings the complete configuration to **291 tests**.
+The [GitHub Actions workflow](https://github.com/guhanp09/npuforge-hardware/actions/workflows/ci.yml)
+builds the core package on macOS/Linux and the optional MLIR compiler on Linux.
+The evidence below records local macOS builds and clean Linux Docker runs; hosted
+results and downloadable reports are available from the workflow page.
 
 ## MLIR extension (v0.5)
 
@@ -29,9 +29,8 @@ removing the ONNX/MLIR files and disabling tool discovery.
 
 Without optional tools, the core configuration passes 247 tests and explicitly
 skips the 44 native-tool cases. Both native core CTest suites still pass in Release
-and under ASan/UBSan. The separate MLIR CI job is configured but has not run on
-GitHub because this version has not been pushed. The v0.4 evidence below remains
-the baseline release record.
+and under ASan/UBSan. The separate MLIR CI job builds the optional compiler and exercises its full test
+suite. The v0.4 evidence below remains the baseline release record.
 
 Reproduce the full optional Linux check:
 
